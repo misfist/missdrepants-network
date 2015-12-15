@@ -1,0 +1,8 @@
+.cf7s-entry { width:100%; font-size:1.1em; margin-top:1em; }
+.cf7s-entry th { text-align:right; font-weight:normal; padding-right:0.5em; color:#999; width:6em; }
+.cf7s-entry th, .cf7s-entry td { vertical-align:top; padding-top:0.25em; padding-bottom:0.25em; }
+.cf7s-from td { font-weight:bold; font-size:1.2em; }
+.cf7s-body th { visibility:hidden; }
+.cf7s-body .body-content-wrap { background:#fff; margin:1em 0 1em -1em; padding:0 1em; border:1px solid #ddd; }
+.cf7s-user-agent td { font-size:0.9em; font-family:monospace; }
+.cf7s-attachments ul { margin:0; }

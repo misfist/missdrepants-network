@@ -1,0 +1,439 @@
+/* widget div + global rules 
+---------------------------------------*/
+.ch_widget {
+    padding: 5px;
+    min-width: 90px;
+}
+
+.ch_widget input {
+    text-align: center;
+}
+
+.ch_widget * {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box; 
+    -webkit-box-sizing: border-box; 
+}
+
+.ch_widget .ch_error {
+    background: #FFEBE8;
+    padding: 9px;
+    border: 1px solid #C00;
+    width: 85%;
+    display:inline-block;
+    zoom:1;
+    *display:inline;    
+}
+
+.ch_clear {
+    clear: both;
+}
+
+/* widget-inside container div
+---------------------------------------*/
+.ch_widget-inside {
+    border: 1px solid #2a71a2;
+    width: 100%;
+    padding-bottom: 10px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+}
+
+/* title
+---------------------------------------*/
+.ch_widget-inside .ch_title {     
+    background: #40b3df;
+    border-bottom: 1px solid #226fa2;
+    padding: 5px;
+    text-align: left;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.ch_widget-inside .ch_title img {
+    margin: 0 5px;
+    height: 100%;
+    vertical-align: top;
+}
+
+.large .ch_title {
+    height: 40px;
+    font-size: 26px;
+    line-height: 30px;
+}
+
+.small .ch_title {
+    height: 30px;
+    font-size: 18px;
+    line-height: 20px;
+}
+
+.small .ch_title img {
+    margin-left: 0;
+}
+
+/* boxes
+---------------------------------------*/
+.ch_widget .boxes {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.boxes .counts {
+    line-height: normal;
+    display:inline-block;
+    zoom:1;
+    *display:inline;
+    font-weight: bold;
+    color: #000;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.boxes .counts div {
+    color: #fff;
+    font-weight: bold;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.boxes .counts.blue div {
+    background: #40b3df;
+}
+
+.boxes .counts.red div {
+    background: #e82300;
+}
+
+.large counts {
+    font-size: 14px;
+}
+
+.small .counts {
+    font-size: 10px;
+}
+
+.large .counts div {
+    font-size: 20px;
+    padding: 12px 28px;
+    min-width: 90px;
+}
+
+.small .counts div {
+    font-size: 14px;
+    padding: 14px 20px;
+    min-width: 60px;
+}
+
+/* media + description
+---------------------------------------*/
+.ch_widget-inside .ch_media img {
+    max-width: 100%;
+    width: 100%;
+}
+
+.ch_youtube_video {
+    width: 100%;
+}
+
+.ch_widget-inside .ch_description {
+    text-align: center;
+    font-size: 12px;
+    padding: 5px 2px;
+    line-height: normal;
+}
+
+.large .ch_media.inline {
+    width: 49%;
+    padding: 2%;
+}
+
+.large .ch_description.inline {
+    width: 49%;
+    padding: 2%;
+}
+
+.large .float_left {
+    float: left;
+}
+
+.large .float_right {
+    float: right;
+}
+
+/* actions
+---------------------------------------*/
+.ch_widget-inside .ch_actions {
+    border-top: 1px solid #226fa2;
+    text-align: center;
+}
+
+.ch_actions .ch_actions_inner {
+    margin: 1% 7.5%;
+    width: 85%;
+}
+
+.large .ch_actions_inner form > div {
+    margin-top: 7px;
+}
+
+.small .ch_actions_inner form > div {
+    margin-top: 4px;
+}
+
+.ch_actions_inner input[type="text"] {
+    margin: 0;
+    text-align: center;
+    line-height: normal;
+    border: 1px solid #cacaca;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.ch_actions_inner input {
+    width: 100%;
+}
+
+.large .ch_actions_inner input {
+    font-size: 18px;
+    padding: 9px 0px;
+}
+
+.small .ch_actions_inner input {
+    font-size: 13px;
+    padding: 5px 0px;
+}
+
+.ch_actions_inner input.error_req {
+    border: 1px solid #C00 !important;
+    background-color: #FFEBE8;
+}
+
+.large .names {
+    width: 100%;
+    clear: both;
+    zoom:1;
+}
+
+.large .ch_first_name {
+    width: 49%;
+    float: left;
+}
+
+.small .ch_first_name {
+    clear: both;
+}
+
+.large .ch_last_name {
+    width: 49%;
+    float: right;
+}
+
+.small .ch_last_name {
+    margin-top: 3px;
+    clear: both;
+}
+
+.ch_submit_div .ch_submit {
+    margin: 0;
+    border: 1px solid #89c905;
+    background: #95d907;
+    width: 100%;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;  
+    cursor: pointer;
+    text-transform: uppercase;
+    color: #fff;
+    font-weight: bold;
+}
+
+.ch_submit_div.ch_loading .ch_submit {
+    background: #ccc;
+    cursor: default;
+}
+
+.small .ch_submit {
+    font-size: 13px;
+    line-height: normal;
+    padding: 4px 0px;
+}
+
+.large .ch_submit {
+    font-size: 18px;
+    padding: 9px 0px;
+    line-height: normal;
+}
+
+/* actions_submit
+---------------------------------------*/
+.ch_actions_inner .social img {
+    margin: 1% 3%;
+}
+
+.small .social {
+    margin-left: 3%;
+}
+
+.small .social img {
+    width: 50px;
+    height: 50px;
+    margin-right: 3%;
+}
+
+.ch_actions_inner .social_title {
+    text-align: center;
+    font-weight: bold;
+}
+
+.ch_actions_inner .social_message {
+    line-height: normal;
+}
+
+.large .social_message {
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+.ch_actions_inner .shareurl {
+    background: #fbfbfb;
+    border: 1px solid #aeaeae;
+    color: #b5b4b4;
+    width: 100%;
+    display:inline-block;
+    zoom:1;
+    *display:inline;
+    padding: 6px 9px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    font-style: italic;
+    word-wrap: break-word;
+    line-height: normal;
+}
+
+.large .shareurl {
+    font-size: 18px;
+}
+
+.small .shareurl {
+    font-size: 12px;
+}
+
+.ch_actions_inner .shareurl span {
+    color: #17649a;
+    font-style: normal;
+}
+
+.ch_widget .ch_contact_message {
+    margin-top: 7px;
+    font-weight: bold;
+}
+
+/* actions double optin
+---------------------------------------*/
+.ch_actions_inner .double_optin_message {
+    
+}
+
+/* countdown
+---------------------------------------*/
+.ch_countdown {
+    width: 100%;
+    background: #40b3df;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    display: block;
+    font-weight: bold;
+    color: #17649a;
+}
+
+.small .ch_countdown {
+    margin-top: 4px;
+    font-size: 13px;
+    line-height: normal;
+    padding: 6px 0px;
+}
+
+.large .ch_countdown {
+    margin-top: 7px;
+    font-size: 18px;
+    line-height: normal;
+    padding: 10px 0px;
+}
+
+.ch_countdown_days, .ch_countdown_hours, .ch_countdown_minutes, .ch_countdown_seconds {
+    color: #fff;
+}
+
+.small .sh {
+    display: none;
+}
+
+/* footer
+---------------------------------------*/
+.ch_footer {
+    text-align: center;
+}
+
+.large .ch_footer {
+    margin-top: 7px;
+}
+
+.small .ch_footer {
+    margin-top: 4px;
+    font-size: 12px;
+}
+.small .ch_footer span {
+    display: block;
+}
+
+.large .ch_poweredby {
+    float: right;
+    padding-right: 7.5%;
+}
+
+.large .ch_rules_disclaimer {
+    float: left;
+    padding-left: 7.5%;
+}
+
+/* rules + disclaimer popup
+---------------------------------------*/
+.ch_rules_disclaimer_wrap {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    display: none;
+
+    background-color: rgba(100, 100, 100, 0.5);
+}
+
+.ch_rules_disclaimer_dialog {
+    background: #fff;
+    border: 1px solid black;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
+    left: 20%;
+    right: 20%;
+    top: 15%;
+    bottom: 20%;
+    overflow: auto;
+    position: fixed;
+    padding: 15px;
+}
+
+.ch_rules_disclaimer_dialog .dialog_close {
+    display: block;
+    float: right;
+    clear: both;
+    cursor: pointer;
+}

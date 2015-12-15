@@ -1,0 +1,180 @@
+# Copyright (C) 2014 Contact Form 7 Storage
+# This file is distributed under the same license as the Contact Form 7 Storage package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Contact Form 7 Storage 1.0.2\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/git\n"
+"POT-Creation-Date: 2014-05-29 17:38:22+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2014-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: cf7-storage.php:63 cf7-storage.php:144
+msgid "Entries"
+msgstr ""
+
+#: cf7-storage.php:143 cf7-storage.php:349
+msgid "Contact Form Entries"
+msgstr ""
+
+#: cf7-storage.php:244 cf7-storage.php:283
+msgid "You are not allowed to move this item to Trash."
+msgstr ""
+
+#: cf7-storage.php:247
+msgid "Error moving an item to Trash."
+msgstr ""
+
+#: cf7-storage.php:263
+msgid "You are not allowed to restore this item from Trash."
+msgstr ""
+
+#: cf7-storage.php:266
+msgid "Error in restoring an item from Trash."
+msgstr ""
+
+#: cf7-storage.php:286
+msgid "Error in deleting an item."
+msgstr ""
+
+#: cf7-storage.php:317
+msgid "Missing entry ID."
+msgstr ""
+
+#: cf7-storage.php:356
+msgid "Search results for \"%s\""
+msgstr ""
+
+#: cf7-storage.php:372
+msgid "Search Entries"
+msgstr ""
+
+#: cf7-storage.php:388
+msgid "This contact form submission doesn't exist!"
+msgstr ""
+
+#: cf7-storage.php:424
+msgctxt "No attachments found"
+msgid "None"
+msgstr ""
+
+#: cf7-storage.php:432
+msgid "Form:"
+msgstr ""
+
+#: cf7-storage.php:440
+msgid "From:"
+msgstr ""
+
+#: cf7-storage.php:444
+msgid "To:"
+msgstr ""
+
+#: cf7-storage.php:448
+msgid "Date:"
+msgstr ""
+
+#: cf7-storage.php:456
+msgid "Subject:"
+msgstr ""
+
+#: cf7-storage.php:460
+msgid "Message:"
+msgstr ""
+
+#: cf7-storage.php:467
+msgid "Attachments:"
+msgstr ""
+
+#: cf7-storage.php:471
+msgid "Referer:"
+msgstr ""
+
+#: cf7-storage.php:475
+msgid "User agent:"
+msgstr ""
+
+#: cf7-storage.php:506
+msgid "Form Submission"
+msgstr ""
+
+#: inc/admin-list-view.php:90
+msgid "Entry"
+msgstr ""
+
+#: inc/admin-list-view.php:91
+msgid "Contact Form"
+msgstr ""
+
+#: inc/admin-list-view.php:92
+msgid "Date"
+msgstr ""
+
+#: inc/admin-list-view.php:114
+msgid "All"
+msgstr ""
+
+#: inc/admin-list-view.php:145 inc/admin-list-view.php:190
+msgid "Restore"
+msgstr ""
+
+#: inc/admin-list-view.php:148 inc/admin-list-view.php:196
+msgid "Delete Permanently"
+msgstr ""
+
+#: inc/admin-list-view.php:150
+msgid "Move to Trash"
+msgstr ""
+
+#: inc/admin-list-view.php:204
+msgid "View"
+msgstr ""
+
+#: inc/admin-list-view.php:210
+msgid "Trash"
+msgstr ""
+
+#: inc/admin-list-view.php:230
+msgid "View this submission from \"%s\""
+msgstr ""
+
+#: inc/admin-list-view.php:245
+msgid "%s ago"
+msgstr ""
+
+#: inc/admin-list-view.php:293
+msgid "All Contact Forms"
+msgstr ""
+
+#: inc/admin-list-view.php:313
+msgid "Filter"
+msgstr ""
+
+#: inc/admin-list-view.php:324
+msgid "Empty Trash"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Contact Form 7 Storage"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://preseto.com/plugins/contact-form-7-storage"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Store all Contact Form 7 submissions (including attachments) in your "
+"WordPress dashboard."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Kaspars Dambis"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://kaspars.net"
+msgstr ""
