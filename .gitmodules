@@ -1,0 +1,9 @@
+[submodule "themes/thegoldenbelle-child"]
+	path = themes/thegoldenbelle-child
+	url = https://misfist@github.com/misfist/thegoldenbelle-child.git
+[submodule "themes/missdrepants-child"]
+	path = themes/missdrepants-child
+	url = https://github.com/misfist/missdrepants-child.git
+[submodule "themes/loom"]
+	path = themes/loom
+	url = https://misfist@github.com/misfist/loom-theme.git
