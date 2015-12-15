@@ -1,13 +1,15 @@
 <?php
 /*
-Plugin Name: Intuitive Custom Post Order
-Plugin URI: http://hijiriworld.com/web/plugins/intuitive-custom-post-order/
-Description: Intuitively, Order Items (Posts, Pages, and Custom Post Types and Custom Taxonomies) using a Drag and Drop Sortable JavaScript.
-Version: 3.0.4
-Author: hijiri
-Author URI: http://hijiriworld.com/web/
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ * Plugin Name: Intuitive Custom Post Order
+ * Plugin URI: http://hijiriworld.com/web/plugins/intuitive-custom-post-order/
+ * Description: Intuitively, Order Items (Posts, Pages, and Custom Post Types and Custom Taxonomies) using a Drag and Drop Sortable JavaScript.
+ * Version: 3.0.7
+ * Author: hijiri
+ * Author URI: http://hijiriworld.com/web/
+ * Text Domain: intuitive-custom-post-order
+ * Domain Path: /languages
+ * License: GPLv2 or later
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
 
 /**
@@ -16,7 +18,6 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 define( 'HICPO_URL', plugins_url( '', __FILE__ ) );
 define( 'HICPO_DIR', plugin_dir_path( __FILE__ ) );
-load_plugin_textdomain( 'hicpo', false, basename( dirname( __FILE__ ) ).'/lang' );
 
 /**
 * Uninstall hook
@@ -61,10 +62,11 @@ class Hicpo
 	{
 		if ( !get_option( 'hicpo_activation' ) ) $this->hicpo_activation();
 		
+		add_action( 'plugins_loaded', array( $this, 'my_plugin_load_plugin_textdomain' ) );
+
 		add_action( 'admin_menu', array( $this, 'admin_menu') );
 		
 		add_action( 'admin_init', array( $this, 'refresh' ) );
-		
 		add_action( 'admin_init', array( $this, 'update_options') );
 		add_action( 'admin_init', array( $this, 'load_script_css' ) );
 		
@@ -97,9 +99,13 @@ class Hicpo
 		update_option( 'hicpo_activation', 1 );
 	}
 
+	function my_plugin_load_plugin_textdomain()
+	{
+		load_plugin_textdomain( 'intuitive-custom-post-order', false, basename( dirname( __FILE__ ) ).'/languages/' );
+	}
 	function admin_menu()
 	{
-		add_options_page( __( 'Intuitive CPO', 'hicpo' ), __( 'Intuitive CPO', 'hicpo' ), 'manage_options', 'hicpo-settings', array( $this,'admin_page' ) );
+		add_options_page( __( 'Intuitive CPO', 'intuitive-custom-post-order' ), __( 'Intuitive CPO', 'intuitive-custom-post-order' ), 'manage_options', 'hicpo-settings', array( $this,'admin_page' ) );
 	}
 	
 	function admin_page()
@@ -268,10 +274,11 @@ class Hicpo
 	/**
 	* はじめて有効化されたオブジェクトは、ディフォルトの order に従って menu_order セットする
 	*
-	* post_type: orderby=post_date, order=desc
-	* taxonomy: orderby=name, order=asc
+	* post_type: orderby=post_date, order=DESC
+	* page: orderby=menu_order, post_title, order=ASC
+	* taxonomy: orderby=name, order=ASC
 	* 
-	* 判定は: アイテム数が 0 以上で order 値がひとつもセットされていないオブジェクト
+	* 判定は: アイテム数が 0 以上で menu_order の最大値とアイテム数が同じではないオブジェクト
 	*/
 	
 	function update_options()
@@ -305,7 +312,7 @@ class Hicpo
 						SELECT ID 
 						FROM $wpdb->posts 
 						WHERE post_type = '".$object."' AND post_status IN ('publish', 'pending', 'draft', 'private', 'future') 
-						ORDER BY post_title ASC
+						ORDER BY menu_order, post_title ASC
 					" );
 				} else {
 					$results = $wpdb->get_results( "
@@ -356,7 +363,7 @@ class Hicpo
 		
 		if ( isset( $post->post_type ) && in_array( $post->post_type, $objects ) ) {
 			$current_menu_order = $post->menu_order;
-			$where = "WHERE p.menu_order > '".$current_menu_order."' AND p.post_type = '". $post->post_type ."' AND p.post_status = 'publish'";
+			$where = str_replace( "p.post_date < '".$post->post_date."'", "p.menu_order > '".$current_menu_order."'", $where );
 		}
 		return $where;
 	}
@@ -383,7 +390,7 @@ class Hicpo
 		
 		if ( isset( $post->post_type ) && in_array( $post->post_type, $objects ) ) {
 			$current_menu_order = $post->menu_order;
-			$where = "WHERE p.menu_order < '".$current_menu_order."' AND p.post_type = '". $post->post_type ."' AND p.post_status = 'publish'";
+			$where = str_replace( "p.post_date > '".$post->post_date."'", "p.menu_order < '".$current_menu_order."'", $where );
 		}
 		return $where;
 	}

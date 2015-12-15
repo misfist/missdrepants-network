@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Simple File Downloader
-Version: 1.0.3
+Version: 1.0.4
 Plugin URI: http://phplugins.softanalyzer.com/simple-file-downloader
 Author: eugenealegiojo
 Author URI: http://wpdevph.com
@@ -34,44 +34,42 @@ if ( !class_exists('SIMPLE_FILE_DOWNLOADER') ) {
 
 	class SIMPLE_FILE_DOWNLOADER {
 		
-		var $is_supported = false;
-		
 		public function __construct(){
 			// TO DO: Add submenu for options
 			//add_action('admin_menu', array(&$this, 'sdf_menu_options'));
 			
 			// Adding media button into the content editor
-			add_action('media_buttons_context',  array(&$this, 'editor_download_button'), 10);
+			add_action('media_buttons_context',  array($this, 'editor_download_button'), 10);
 			
 			// Adding popup window for file selection from media library
-			add_action( 'admin_footer',  array(&$this, 'add_inline_popup_content') );
+			add_action( 'admin_footer',  array($this, 'add_inline_popup_content') );
 			
 			// Adding admin footer scripts when download link is available'
-			add_action('admin_enqueue_scripts', array(&$this, 'admin_footer_scripts'), 10 );
+			add_action('admin_enqueue_scripts', array($this, 'admin_footer_scripts'), 10 );
 			
 			// Do the ajax request for media files
-			add_action( 'wp_ajax_get-media-location', array(&$this, 'get_media_files_attachment') );
-			add_action( 'wp_ajax_nopriv_get-media-location', array(&$this, 'get_media_files_attachment') );
+			add_action( 'wp_ajax_get-media-location', array($this, 'get_media_files_attachment') );
+			add_action( 'wp_ajax_nopriv_get-media-location', array($this, 'get_media_files_attachment') );
 			
 			// Shortcode support
-			add_shortcode('media-downloader', array(&$this, 'sfd_media_downloader') ); 	
+			add_shortcode('media-downloader', array($this, 'sfd_media_downloader') ); 	
 			
 			// Process download
-			add_action('init', array(&$this, 'sfd_process_download'), 10);
+			add_action('init', array($this, 'sfd_process_download'), 10);
 			
 			// TO DO: Localization support
 			//add_action('plugins_loaded', array(&$this,'sfd_plugins_loaded'), 10, 2 );
 		}
 		
-		/*
+		/**
 		 * Check if the current screen is supported. Making sure it works for posts, pages & post_types
 		 *
-		 * @return boolean $this->is_supported
+		 * @return boolean
 		 */
 		function is_screen_supported(){
 			global $current_screen;
-			$current_screen = get_current_screen();
-			if( $current_screen->base == 'post' ) 
+
+			if( isset($current_screen->base) && $current_screen->base == 'post' ) 
 				return true;
 			else 
 				return false;
@@ -80,12 +78,12 @@ if ( !class_exists('SIMPLE_FILE_DOWNLOADER') ) {
 		/**
 		 * Admin footer scripts
 		 */		
-		function admin_footer_scripts( $hook ){
+		function admin_footer_scripts(){
 			global $current_screen;
-			if( !$this->is_screen_supported() ) return false;
-			
-			wp_enqueue_script( 'sfd_admin_script', SFD_URL . '/js/admin.js' );
-			wp_localize_script( 'sfd_admin_script', 'adminParam', array( 'ajaxURL' => admin_url('admin-ajax.php') ) );
+			if ( $this->is_screen_supported() ) {
+				wp_enqueue_script( 'sfd_admin_script', SFD_URL . '/js/admin.js' );
+				wp_localize_script( 'sfd_admin_script', 'adminParam', array( 'ajaxURL' => admin_url('admin-ajax.php') ) );
+			}
 		} 
 		
 		/**
@@ -160,7 +158,7 @@ if ( !class_exists('SIMPLE_FILE_DOWNLOADER') ) {
 				$content .= '<div style="padding: 15px 15px 0 15px">
 								<h2>'. __('Select media file', 'sfd') .'</h2>
 								<span>'. __('Select a file from Media Library to add in the content as download link.', 'sfd') .'</span><br />'.
-								__('<select id="download_attachment_id"><option value="">-No category has been selected', 'sfd') .'-</option></select>
+								__('<select id="download_attachment_id"><option value="">-No location selected', 'sfd') .'-</option></select>
 							</div>';
 							
 				// Download texts			
@@ -179,37 +177,53 @@ if ( !class_exists('SIMPLE_FILE_DOWNLOADER') ) {
 			echo $content;					
 		}
 		
-		/***
+		/**
 		 * Load media files based from location selected (All media | Attached media)
 		 * 
-		 * @return string $return_data
+		 * @return string|json $response
 		 */
-		function get_media_files_attachment(){
+		function get_media_files_attachment() {
 			$media_location = $_POST['media_location'];
-			if ( empty($media_location) ) return;
-			
-			$return_data = array();
-			if( $media_location == 'attached-files' ) {
-				$args = array('post_type' => 'attachment', 'posts_per_page' => -1, 'post_parent__not_in' => array(0), 'post_status' => 'inherit', 'orderby' => 'title', 'order' => 'ASC');
+
+			$response = array('success' => false, 'message' => '<option value="">-'. __('No files found.', 'sfd') .'-</option>');
+
+			if ( !empty($media_location) ) {
+				$args = array(
+					'post_type' => 'attachment', 
+					'posts_per_page' => -1,
+					'post_status' => 'inherit', 
+					'orderby' => 'title', 
+					'order' => 'ASC'
+				);
+
+				if ( $media_location == 'attached-files' ) {
+					$args['post_parent__not_in'] = array(0);
+				} else {
+					$args['post_parent'] = 0;
+				}
+
+				$get_media = get_posts( $args );
+				if ( $get_media ) {
+					$html = '';
+					foreach ( $get_media as $key => $attachment ) {
+						$file_name = get_attached_file( $attachment->ID );
+						$basename = basename($file_name);
+						$check_type = wp_check_filetype( $file_name );
+						$file_type = isset($check_type['ext']) ? '('.strtoupper($check_type['ext']).') ' : '';
+						
+						$title_base = substr($basename, 0, (strlen($basename)) - (strlen(strrchr($basename, '.'))));
+						
+						$title = empty($attachment->post_title) ? $title_base : $attachment->post_title;
+						$html .= '<option value="'. $attachment->ID .'">'. $file_type . $title .'</option>';
+					} // end foreach
+
+					$response = array('success' => true, 'message' => $html); 
+				}
 			} else {
-				$args = array('post_type' => 'attachment', 'posts_per_page' => -1, 'post_parent' => 0, 'post_status' => 'inherit', 'orderby' => 'title', 'order' => 'ASC');
+				$response['message'] = '<option value="">-'. __('No location selected', 'sfd') .'-</option>';
 			}
-			$get_media = get_posts( $args );
-			if( $get_media ){
-				foreach( $get_media as $key => $attachment ){
-					$html .= '<option value="'. $attachment->ID .'">'. $attachment->post_title .'</option>';
-				} // end foreach
-				$return_data['message'] = $html;
-				$return_data['error'] = 0;
-			} else {
-				$return_data['message'] = '<option value="">-'. __('No files found.', 'sfd') .'-</option>';
-				$return_data['error'] = 1;
-			} // endif
-			
-			$response = json_encode($return_data);
-			header('Content-Type: application/json');
-			echo $response;
-			die();
+
+			wp_send_json($response);
 		} 
 		
 		/**

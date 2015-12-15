@@ -3,8 +3,8 @@ Contributors: eugenealegiojo
 Donate link: http://phplugins.softanalyzer.com/simple-file-downloader
 Tags: simple, file, library, downloader, downloads, media, digital, download
 Requires at least: 3.0
-Tested up to: 4.0
-Stable tag: 1.0.3
+Tested up to: 4.3.1
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,11 @@ No.
 
 
 == Changelog ==
+
+= 1.0.4 =
+* Fixed PHP notices
+* Code enhancements
+* [New] Added file type beside the title. Thanks to @kjoussen for pointing this out if we have the same file title.
 
 = 1.0.3 =
 * IMPORTANT Update: Fixed the blank screen bug.

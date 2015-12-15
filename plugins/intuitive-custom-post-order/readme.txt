@@ -1,29 +1,31 @@
 === Intuitive Custom Post Order ===
 Contributors: hijiri
+Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TT5NP352P6MCU
 Tags: post order, posts order, order post, order posts, custom post type order, custom taxonomy order
 Requires at least: 3.5.0
-Tested up to: 4.1.0
-Stable tag: 3.0.4
+Tested up to: 4.3.1
+Stable tag: 3.0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Intuitively, Order Items (Posts, Pages, and Custom Post Types, and Custom Taxonomies) using a Drag and Drop Sortable JavaScript.
+Intuitively, order items( Posts, Pages, and Custom Post Types, and Custom Taxonomies ) using a drag and drop sortable JavaScript.
 
 == Description ==
 
-Intuitively, Order Items (Posts, Pages, and Custom Post Types, and Custom Taxonomies) using a Drag and Drop Sortable JavaScript.
-Configuration is unnecessary.
-You can do directly on default WordPress administration.
+Intuitively, order items( Posts, Pages, and Custom Post Types, and Custom Taxonomies ) using a drag and drop sortable JavaScript.
 
-You can re-override the parameters of 'orderby' and 'order'.
-In order to re-override the parameters, You must use the 'WP_Query' or 'pre_get_posts' or 'query_posts'.
+Select sortable items from 'Intuitive CPT' menu of Setting menu in WordPress.
+
+In addition, You can re-override the parameters of 'orderby' and 'order', by using the 'WP_Query' or 'pre_get_posts' or 'query_posts()'.<br>
 The 'get_posts()' is excluded.
+
+This Plugin published on <a href="https://github.com/hijiriworld/intuitive-custom-post-order">GitHub.</a>
 
 == Installation ==
 
 1. Upload 'intuitive-custom-post-order' folder to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. Select Sortable Objects from Intuitive CPT Menu.
+3. Select sortable items from 'Intuitive CPT' menu of Setting menu in WordPress.
 
 == Screenshots ==
 
@@ -35,9 +37,11 @@ The 'get_posts()' is excluded.
 
 = How to re-override the parameters of 'orderby' and 'order' =
 
-Sub query
+<strong>Sub query</strong>
 
-Use the 'WP_Query', you can re-override the parameters.
+By using the 'WP_Query', you can re-override the parameters.
+
+* WP_Query
 
 `
 <?php $query = new WP_Query( array(
@@ -46,11 +50,11 @@ Use the 'WP_Query', you can re-override the parameters.
 ) ) ?>
 `
 
-Main query
+<strong>Main query</strong>
 
-Use the 'pre_get_posts' action hook or 'query_posts', you can re-override the parameters.
+By using the 'pre_get_posts' action hook or 'query_posts()', you can re-override the parameters.
 
-pre_get_posts
+* pre_get_posts
 
 `
 function my_filter( $query )
@@ -65,7 +69,7 @@ function my_filter( $query )
 add_action( 'pre_get_posts', 'my_filter' );
 `
 
-query_posts
+* query_posts()
 
 `
 <?php query_posts( array(
@@ -75,6 +79,19 @@ query_posts
 
 == Changelog ==
 
+= 3.0.7 =
+
+* This plugin will imported listed above into the translate.wordpress.org translation system. Language packs will also be enabled for this plugin, for any locales that are fully translated (at 100%).
+
+= 3.0.6 =
+
+* Support 'next_post_link()' and 'previous_post_link(), etc.
+  - Parameters( $in_same_term, $excluded_terms, $taxonomy ) works perfectly.
+
+= 3.0.5 =
+
+* Fixed bug
+  - Initialize of menu_order of pages.( orderby=menu_order, post_title, order=asc )
 
 = 3.0.4 =
 
@@ -84,7 +101,7 @@ query_posts
 * Fixed bug
   - Decision of Enabling Sortable JavaScript.
   - Initialize of menu_order of pages.( orderby=post_title, order=asc )
-  
+
 = 3.0.3 =
 
 * Performance improvement for Activation.
@@ -98,7 +115,7 @@ query_posts
 
 = 3.0.0 =
 
-* Support the Custom Taxonomy Order!! 
+* Support the Custom Taxonomy Order!!
   ( wp_list_categories, get_categories, the_terms, the_tags, get_terms, get_the_terms, get_the_term_list, the_category, wp_dropdown_categories, the_taxonomies )
 * Suuport the sorting in admin UI.
   While having sorted, Drag and Drop Sortable Javascript don't run.

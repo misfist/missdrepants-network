@@ -128,26 +128,29 @@ class WPCF7_Contact_Form_List_Table extends WP_List_Table {
 	function column_author( $item ) {
 		$post = get_post( $item->id() );
 
-		if ( ! $post )
+		if ( ! $post ) {
 			return;
+		}
 
 		$author = get_userdata( $post->post_author );
+
+		if ( false === $author ) {
+			return;
+		}
 
 		return esc_html( $author->display_name );
 	}
 
 	function column_shortcode( $item ) {
-		$shortcodes = array(
-			sprintf( '[contact-form-7 id="%1$d" title="%2$s"]',
-				$item->id(), $item->title() ) );
+		$shortcodes = array( $item->shortcode() );
 
 		$output = '';
 
 		foreach ( $shortcodes as $shortcode ) {
-			$output .= "\n" . '<input type="text"'
+			$output .= "\n" . '<span class="shortcode"><input type="text"'
 				. ' onfocus="this.select();" readonly="readonly"'
 				. ' value="' . esc_attr( $shortcode ) . '"'
-				. ' class="shortcode-in-list-table wp-ui-text-highlight code" />';
+				. ' class="large-text code" /></span>';
 		}
 
 		return trim( $output );
@@ -173,5 +176,3 @@ class WPCF7_Contact_Form_List_Table extends WP_List_Table {
 		return '<abbr title="' . $t_time . '">' . $h_time . '</abbr>';
 	}
 }
-
-?>

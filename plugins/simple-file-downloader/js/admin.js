@@ -2,23 +2,31 @@
  * Adding custom popup event for Simple File Download link generator
  */
 jQuery(document).ready( function($){ 
-	$("input#insert-download-link").prop('disabled', true);
-	$("#download_term_id").on("change", function(){
-		var $get_term_data = {
+	var wrap 			= $('.file-download-wrap'),
+		locationSelect  = $(wrap).find('#download_term_id'),   
+		selectFile 		= $(wrap).find('#download_attachment_id'),   
+		generate_button = $(wrap).find('#insert-download-link'),
+		get_term_data 	= []; 
+
+	generate_button.prop('disabled', true);
+
+	locationSelect.on("change", function(){
+		get_term_data = {
 			'action': 'get-media-location',
 			'media_location': $(this).val() 
 		}
-		$.post( adminParam.ajaxURL, $get_term_data, function( response ) {
+		$.post( adminParam.ajaxURL, get_term_data, function( response ) {
 			jQuery('.error-file').remove();
 			
-			if( typeof response.message != 'undefined' )
-			$( "select#download_attachment_id" ).html( response.message );
-			
-			if( typeof response.error != 'undefined' && (response.pass == 1) )
-				$("input#insert-download-link").prop('disabled', true);
-			else
-				$("input#insert-download-link").prop('disabled', false);
-				
+			if ( typeof response !== 'undefined' ) {
+				selectFile.html( response.message );
+
+				if ( response.success === true ) {
+					generate_button.prop('disabled', false);
+				} else {
+					generate_button.prop('disabled', true);
+				}
+			}
 		}, "json");
 	});
 });
