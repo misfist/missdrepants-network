@@ -19,3 +19,9 @@ upgrade/
 uploads/
 /vendor/
 w3tc-config/
+
+plugins/debug*
+plugins/developer/
+plugins/theme-check/
+plugins/wp-log-viewer/
+plugins/which-template-file/

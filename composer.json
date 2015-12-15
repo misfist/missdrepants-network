@@ -86,14 +86,14 @@
     "wpackagist-plugin/sumome": ">=1.10",
     "wpackagist-plugin/updraftplus": ">=1.11.18",
     "wpackagist-plugin/yelp-widget-pro": ">=1.4.2",
-    "misfist/loom-theme": ">=dev-master",
-    "misfist/missdrepants-child": ">=dev-master",
-    "misfist/thegoldenbelle-child": ">=dev-master"
+    "misfist/loom-theme": "dev-master",
+    "misfist/missdrepants-child": "dev-master",
+    "misfist/thegoldenbelle-child": "dev-master"
 
   },
   "require-dev": {
-    "wpackagist-plugin/developer": "1.2.6",
-    "wpackagist-plugin/which-template-am-i": "1.1.0"
+    "wpackagist-plugin/developer": "*",
+    "wpackagist-plugin/which-template-file": "*"
   },
   "extra"       : {
     "wordpress-plugin": "./plugins/{$name}/",
