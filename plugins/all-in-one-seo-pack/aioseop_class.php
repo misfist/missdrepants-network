@@ -2692,6 +2692,7 @@ EOF;
 	}
 	
 	function get_tax_name( $tax ) {
+		global $aioseop_options;
 		$name = '';
 		if ( empty( $name ) ) $name = single_term_title( '', false );
 		if ( ( $tax == 'category' ) && ( !empty( $aioseop_options['aiosp_cap_cats'] ) ) )

@@ -8,7 +8,7 @@
 if ( !class_exists( 'All_in_One_SEO_Pack_Importer_Exporter' ) ) {
 	class All_in_One_SEO_Pack_Importer_Exporter extends All_in_One_SEO_Pack_Module {
 
-		function All_in_One_SEO_Pack_Importer_Exporter( ) {
+		function __construct( ) {
 			$this->name = __( 'Importer & Exporter', 'all-in-one-seo-pack' );	// Human-readable name of the module
 			$this->prefix = 'aiosp_importer_exporter_';						// option prefix
 			$this->file = __FILE__;

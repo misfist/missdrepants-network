@@ -8,7 +8,7 @@
 if ( !class_exists( 'All_in_One_SEO_Pack_File_Editor' ) ) {
 	class All_in_One_SEO_Pack_File_Editor extends All_in_One_SEO_Pack_Module {
 
-		function All_in_One_SEO_Pack_File_Editor( ) {
+		function __construct( ) {
 			$this->name = __('File Editor', 'all-in-one-seo-pack');		// Human-readable name of the plugin
 			$this->prefix = 'aiosp_file_editor_';						// option prefix
 			$this->file = __FILE__;										// the current file

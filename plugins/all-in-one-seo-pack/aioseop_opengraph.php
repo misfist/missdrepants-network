@@ -10,7 +10,7 @@ if ( !class_exists( 'All_in_One_SEO_Pack_Opengraph' ) ) {
 		var $fb_object_types;
 		var $type;
 		
-		function All_in_One_SEO_Pack_Opengraph( ) {
+		function __construct( ) {
 			$this->name = __('Social Meta', 'all-in-one-seo-pack');	// Human-readable name of the plugin
 			$this->prefix = 'aiosp_opengraph_';						// option prefix
 			$this->file = __FILE__;									// the current file
