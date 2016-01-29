@@ -24,6 +24,7 @@
       "type":"package",
       "package": {
         "name": "misfist/loom-theme",
+        "type": "wordpress-theme",
         "version":"dev-master",
         "source": {
           "url": "https://github.com/misfist/loom-theme.git",
@@ -37,6 +38,7 @@
       "package": {
         "name": "misfist/missdrepants-child",
         "version":"dev-master",
+        "type": "wordpress-theme",
         "source": {
           "url": "https://github.com/misfist/missdrepants-child.git",
           "type": "git",
@@ -49,6 +51,7 @@
       "package": {
         "name": "misfist/thegoldenbelle-child",
         "version":"dev-master",
+        "type": "wordpress-theme",
         "source": {
           "url": "https://github.com/misfist/thegoldenbelle-child.git",
           "type": "git",
@@ -59,7 +62,7 @@
   ],
   "require": {
     "php": ">=5.4.0",
-    "wpackagist-plugin/akismet": ">=3.1.6",
+    "wpackagist-plugin/akismet": "~3.1.7",
     "wpackagist-plugin/codepress-admin-columns": ">=2.4.8",
     "wpackagist-plugin/intuitive-custom-post-order": ">=3.0.7",
     "wpackagist-plugin/chartbeat": ">=2.0.4",
@@ -75,6 +78,7 @@
     "wpackagist-plugin/wordpress-mu-domain-mapping": ">=0.5.5.1",
     "wpackagist-plugin/wp-user-avatar": ">=1.9.13",
     "wpackagist-plugin/easy-testimonials": ">=1.33",
+    "wpackagist-plugin/wp-instagram-widget": "^1.9",
     "wpackagist-plugin/jetpack": ">=3.8.1",
     "wpackagist-plugin/jetpack-module-control": ">=1.3",
     "wpackagist-plugin/updraftplus": ">=1.11.18",
@@ -83,17 +87,19 @@
     "wpackagist-plugin/all-in-one-seo-pack": ">=2.2.7.4",
     "wpackagist-plugin/wordpress-seo": ">=3.0.6",
     "wpackagist-plugin/wp-super-cache": ">=1.4.6",
+    "wpackagist-plugin/wordpress-importer": ">=0.6.1",
     "misfist/loom-theme": "dev-master",
     "misfist/missdrepants-child": "dev-master",
     "misfist/thegoldenbelle-child": "dev-master"
-
   },
   "require-dev": {
     "wpackagist-plugin/developer": "*",
     "wpackagist-plugin/which-template-file": "*"
   },
   "extra"       : {
-    "wordpress-plugin": "./plugins/{$name}/",
-    "wordpress-theme": "./themes/{$name}/"
+    "installer-paths": {
+        "./plugins/{$name}/": ["type:wordpress-plugin"],
+        "./themes/{$name}/": ["type:wordpress-theme"]
+    }
   }
 }
