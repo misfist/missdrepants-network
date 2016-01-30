@@ -97,7 +97,8 @@
   "require-dev": {
     "wpackagist-plugin/velvet-blues-update-urls": "*",
     "wpackagist-plugin/developer": "*",
-    "wpackagist-plugin/which-template-file": "*"
+    "wpackagist-plugin/which-template-file": "*",
+    "wpackagist-plugin/wp-log-viewer": "*"
   },
   "extra"       : {
     "installer-paths": {
