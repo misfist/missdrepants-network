@@ -201,7 +201,7 @@ class Mailchimp_Mailmunch_Admin {
 			$review_message .= sprintf( __( "You have been using <strong>%s</strong> for a few weeks now. We hope you are enjoying the features. Please consider leaving us a nice review. Reviews help people find our plugin and lets you provide us with useful feedback which helps us improve." , MAILCHIMP_MAILMUNCH_SLUG ), $this->plugin_name );
 			$review_message .= "<div class='mailmunch-buttons'>";
 			$review_message .= sprintf( "<a href='%s' target='_blank' class='button-secondary'><span class='dashicons dashicons-star-filled'></span>" . __( "Leave a Review" , MAILCHIMP_MAILMUNCH_SLUG ) . "</a>", $review_url );
-			$review_message .= sprintf( "<a href='%s' target='_blank' class='button-secondary'><span class='dashicons dashicons-no-alt'></span>" . __( "Dismiss" , MAILCHIMP_MAILMUNCH_SLUG ) . "</a>", $dismiss_url );
+			$review_message .= sprintf( "<a href='%s' class='button-secondary'><span class='dashicons dashicons-no-alt'></span>" . __( "Dismiss" , MAILCHIMP_MAILMUNCH_SLUG ) . "</a>", $dismiss_url );
 			$review_message .= "</div>";
 ?>
 			<div class="mailmunch-review-notice">

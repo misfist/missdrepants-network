@@ -21,7 +21,10 @@ What is [MailChimp](http://www.mailchimp.com/)? MailChimp is one of the best ema
 Our improved signup plugin for MailChimp will proactively sign-up new subscribers to your MailChimp newsletter list. Our MailChimp forms offer the same basic features that MailChimp's official plugin, but also much more. In addition to the form, analytics will help you track the number of form views and subscriptions.
 
 = Sign-Up Forms =
-Easily create sign-up forms for your MailChimp list and display it as a popup, embedded widget or a top bar.
+* MailChimp Popup with Exit
+* MailChimp Embedded
+* MailChimp Sidebar Widget
+* MailChimp Top Bar
 
 = Features =
 * Mobile optimized MailChimp form
@@ -94,7 +97,7 @@ Absolutely not. MailChimp by MailMunch is designed with high performance and sca
 Most people see a 100% to 500% growth in their MailChimp email subscribers.
 
 = How to display a MailChimp form in my template files? = 
-You can display shortcodes using `echo do_shortcode([SHORTCODE])`.
+You can display MailChimp shortcodes using `echo do_shortcode([SHORTCODE])`.
 
 Example: 
 `<?php echo do_shortcode( '[mailmunch-form id=79669]' ) ?>`
@@ -165,6 +168,8 @@ With MailChimp you can build a list of email subscribers. MailChimp allows you t
 
 = MailChimp Forms 2.1.4 =
 * MailChimp feedback notice
+* MailChimp styling fix
+* MailChimp WordPress 4.4
 
 = MailChimp Forms 2.1.3 =
 * MailChimp easy activation
@@ -218,6 +223,11 @@ With MailChimp you can build a list of email subscribers. MailChimp allows you t
 
 = MailChimp Forms 1.0.1 =
 * The first version of MailChimp Forms WordPress plugin by MailMunch
+
+= MailChimp 10.6 (2015-11-18) =
+* MailChimp Pro Features
+* MailChimp Automation and Workflow
+* RSS Campaigns by MailChimp
 
 = MailChimp Playground (2015-10-22) =
 * MailChimp Forms API playground
