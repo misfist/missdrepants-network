@@ -194,6 +194,9 @@ class singleTestimonialWidget extends WP_Widget
 	}
 
 	function widget($args, $instance){
+		global $easy_t_in_widget;
+		$easy_t_in_widget = true;
+		
 		extract($args, EXTR_SKIP);
 
 		echo $before_widget;
@@ -223,12 +226,14 @@ class singleTestimonialWidget extends WP_Widget
 			'show_thumbs' => $show_testimonial_image,
 			'show_other' => $show_other,
 			'theme' => $theme,
-			'id' => $testimonial_id
+			'id' => $testimonial_id,
 		);
 		
 		echo outputSingleTestimonial( $args );
 
 		echo $after_widget;
+		
+		$easy_t_in_widget = false;
 	} 
 	
 	function get_theme_group_label($theme_group)

@@ -3,8 +3,8 @@ Contributors: richardgabriel, ghuger
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=V7HR8DP4EJSYN
 Tags: testimonials, testimonial widget, testimonial feed, random testimonials
 Requires at least: 3.1
-Tested up to: 4.4
-Stable tag: 1.33
+Tested up to: 4.4.1
+Stable tag: 1.34.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -247,6 +247,8 @@ We provide the following filters to developers for customizing output even furth
 -   `easy_t_testimonials_html` -- all testimonials list filter
 -   `easy_t_testimonials_cyle_html` -- testimonials cycle filter
 -   `easy_t_submission_form` -- testimonial submission form
+-	`easy_t_get_single_testimonial_html` -- single testimonial html filter, all output functions use this to build each testimonials html
+-   `easy_t_get_pagination_link_template` -- pagination link template filter, use this to modify the display of the previous, next, and page number links in paged testimonials
 
 ### Outputting a Count of your Testimonials
 
@@ -351,6 +353,23 @@ Easy!  Just add the attribute width=500px or width=33% (be sure to use the full 
 14. This is the Testimonial Grid Widget.
 
 == Changelog ==
+
+= 1.34.3 =
+* Fixes double-encoded HTML appearing in Testimonial Category dropdown of submission form.
+* Fixes issue causing testimonial content to be cut off when using the slider on some themes.
+* Updates pagination to be formatted better and to have page number links.
+* Adds Pagination controls to List and Grid widgets.
+
+= 1.34.2 =
+* Fixes slideshow height issue when using auto height settings.
+
+= 1.34.1 = 
+* Address double content display bug.
+
+= 1.34 = 
+* Adds new Filter, easy_t_get_single_testimonial_html, allowing for further customization of testimonial output by developers.
+* Fixes bug where some content was duplicated when using widgets on single views.
+* Updates output filtering to show testimonials using proper theme and style settings on Category, Tag, and Archive index pages.
 
 = 1.33 =
 * Adds Testimonial Excerpt controls, allowing control of the length, text, and linkage of Testimonial Excerpts.
@@ -785,4 +804,4 @@ Easy!  Just add the attribute width=500px or width=33% (be sure to use the full 
 
 == Upgrade Notice ==
 
-= 1.33: Custom Testimonial Excerpts, Single Views Now Available!  Also addresses performance, compatibility issues and minor bugs.
+= 1.34.3: Minor fixes, pagination update.

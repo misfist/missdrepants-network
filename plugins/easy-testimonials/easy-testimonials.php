@@ -4,7 +4,7 @@ Plugin Name: Easy Testimonials
 Plugin URI: https://goldplugins.com/our-plugins/easy-testimonials-details/
 Description: Easy Testimonials - Provides custom post type, shortcode, sidebar widget, and other functionality for testimonials.
 Author: Gold Plugins
-Version: 1.33
+Version: 1.34.3
 Author URI: https://goldplugins.com
 Text Domain: easy-testimonials
 
@@ -494,7 +494,7 @@ function submitTestimonialForm($atts){
 									<?php
 									foreach($testimonial_categories as $cat) {
 										$sel_attr = ( !empty($_POST['the-category']) && $_POST['the-category'] == $cat->slug) ? 'selected="selected"' : '';
-										printf('<option value="%s" %s>%s</option>', $cat->slug, $sel_attr, htmlentities($cat->name));
+										printf('<option value="%s" %s>%s</option>', $cat->slug, $sel_attr, $cat->name);
 									}
 									?>
 								</select>
@@ -852,12 +852,17 @@ function outputTestimonials($atts){
 	
 	extract($atts);
 			
-	if(!is_numeric($count)){
+	//if a bad value is passed for count, set it to -1 to load all testimonials
+	//if $paginate is set to "all", this shortcode was made from a widget 
+	//and we need to set the count to -1 to load all testimonials
+	if(!is_numeric($count) || $paginate == "all"){
 		$count = -1;
 	}
 	
 	//if we are paging the testimonials, set the $count to the number of testimonials per page
-	if($paginate){
+	//sometimes $paginate is set, but is set to "all" (from the Widget) -
+	//this indicates that we want to show every testimonial and not page them
+	if($paginate && $paginate != "all"){
 		$count = $testimonials_per_page;
 	}
 	
@@ -865,8 +870,21 @@ function outputTestimonials($atts){
 	
 	$i = 0;
 	
+	//query args
+	$args = array( 'post_type' => 'testimonial','posts_per_page' => $count, 'easy-testimonial-category' => $category, 'orderby' => $orderby, 'order' => $order);
+	
+	// handle paging
+	$nopaging = ($testimonials_per_page <= 0);
+	$paged = !empty($_REQUEST['testimonial_page']) && intval($_REQUEST['testimonial_page']) > 0 ? intval($_REQUEST['testimonial_page']) : 1;
+	if (!$nopaging && $paginate && $paginate != "all") {
+		//if $nopaging is false and $paginate is true, or max (but not "all"), then $testimonials_per_page is greater than 0 and the user is trying to paginate them
+		//sometimes paginate is true, or 1, or max -- they all indicate the same thing.  "max" comes from the widget, true or 1 come from the shortcode / old instructions
+		$args['posts_per_page'] = $testimonials_per_page;
+		$args['paged'] = $paged;
+	}
+	
 	//load testimonials into an array
-	$loop = new WP_Query(array( 'post_type' => 'testimonial','posts_per_page' => $count, 'easy-testimonial-category' => $category, 'orderby' => $orderby, 'order' => $order, 'paged' => get_query_var( 'paged' )));
+	$loop = new WP_Query($args);
 	while($loop->have_posts()) : $loop->the_post();
 		$postid = get_the_ID();	
 		echo easy_t_get_single_testimonial_html($postid, $atts);
@@ -874,12 +892,21 @@ function outputTestimonials($atts){
 	
 	//output the pagination links, if instructed to do so
 	//TBD: make all labels controllable via settings
-	//TBD: fancier pagination, with page numbers etc
 	if($paginate){
-		echo '<div class="easy_t_pagination">';
-			echo '<div style="float:left;">' . get_previous_posts_link( __('Previous Testimonials', 'easy-testimonials') ) . '</div>';
-			echo '<div style="float:right;">' . get_next_posts_link( __('Next Testimonials', 'easy-testimonials'), $loop->max_num_pages ) . '</div>';
-		echo '</div>';
+		$pagination_link_template = get_pagination_link_template('testimonial_page');
+		
+		?>
+		<div class="easy_t_pagination">                               
+			<?php
+			echo paginate_links( array(
+				'base' => $pagination_link_template,
+				'format' => '?testimonial_page=%#%',
+				'current' => max( 1, $paged ),
+				'total' => $loop->max_num_pages
+			) );
+			?>
+		</div>  
+		<?php
 	}
 	
 	wp_reset_postdata();
@@ -889,6 +916,33 @@ function outputTestimonials($atts){
 	
 	return apply_filters('easy_t_testimonials_html', $content);
 }
+
+
+/* 
+ * Returns an URL template that can be passed as the 'base' param 
+ * to WP's paginate_links function
+ * 
+ * Note: This function is based on WordPress' get_pagenum_link. 
+ * It allows the query string argument to changed from 'paged'
+ */
+function get_pagination_link_template( $arg = 'testimonial_page' )
+{
+	$request = remove_query_arg( $arg );
+	
+	$home_root = parse_url(home_url());
+	$home_root = ( isset($home_root['path']) ) ? $home_root['path'] : '';
+	$home_root = preg_quote( $home_root, '|' );
+
+	$request = preg_replace('|^'. $home_root . '|i', '', $request);
+	$request = preg_replace('|^/+|', '', $request);
+
+	$base = trailingslashit( get_bloginfo( 'url' ) );
+
+	$result = add_query_arg( $arg, '%#%', $base . $request );
+	$result = apply_filters( 'easy_t_get_pagination_link_template', $result );
+	
+	return esc_url_raw( $result );
+}	
 
 /*
  * Displays a grid of testimonials, with the requested number of columns
@@ -938,6 +992,20 @@ function easy_t_testimonials_grid_shortcode($atts)
 	if ( empty($id) && !empty($ids) ) {
 		$id = $ids;
 	}
+			
+	//if a bad value is passed for count, set it to -1 to load all testimonials
+	//if $paginate is set to "all", this shortcode was made from a widget 
+	//and we need to set the count to -1 to load all testimonials
+	if(!is_numeric($count) || $paginate == "all"){
+		$count = -1;
+	}
+	
+	//if we are paging the testimonials, set the $count to the number of testimonials per page
+	//sometimes $paginate is set, but is set to "all" (from the Widget) -
+	//this indicates that we want to show every testimonial and not page them
+	if($paginate && $paginate != "all"){
+		$count = $testimonials_per_page;
+	}
 	
 	$testimonials_output = '';
 	$col_counter = 1;
@@ -983,9 +1051,18 @@ function easy_t_testimonials_grid_shortcode($atts)
 		'posts_per_page' => $count,
 		'easy-testimonial-category' => $category,
 		'orderby' => $orderby,
-		'order' => $order,
-		'paged' => get_query_var( 'paged' )
+		'order' => $order
 	);
+	
+	// handle paging
+	$nopaging = ($testimonials_per_page <= 0);
+	$paged = !empty($_REQUEST['testimonial_page']) && intval($_REQUEST['testimonial_page']) > 0 ? intval($_REQUEST['testimonial_page']) : 1;
+	if (!$nopaging && $paginate && $paginate != "all") {
+		//if $nopaging is false and $paginate is true, or max (but not "all"), then $testimonials_per_page is greater than 0 and the user is trying to paginate them
+		//sometimes paginate is true, or 1, or max -- they all indicate the same thing.  "max" comes from the widget, true or 1 come from the shortcode / old instructions
+		$args['posts_per_page'] = $testimonials_per_page;
+		$args['paged'] = $paged;
+	}
 	
 	// restrict to specific posts if requested
 	if ( !empty($id) ) {
@@ -1022,6 +1099,21 @@ function easy_t_testimonials_grid_shortcode($atts)
 	// close any half finished rows
 	if ($in_row) {
 		$testimonials_output .= '</div><!--easy_testimonials_grid_row-->';
+	}
+	
+	//output the pagination links, if instructed to do so
+	//TBD: make all labels controllable via settings
+	if($paginate){
+		$pagination_link_template = get_pagination_link_template('testimonial_page');
+		
+		$testimonials_output .= '<div class="easy_t_pagination">';                           
+		$testimonials_output .= paginate_links(array(
+									'base' => $pagination_link_template,
+									'format' => '?testimonial_page=%#%',
+									'current' => max( 1, $paged ),
+									'total' => $loop->max_num_pages
+								));
+		$testimonials_output .= '</div>  ';
 	}
 	
 	// restore globals to their original values (i.e, $post and friends)
@@ -1288,8 +1380,10 @@ function outputTestimonialsCycle($atts){
 
 //runs when viewing a single testimonial's page (ie, you clicked on the continue reading link from the excerpt)
 function single_testimonial_content_filter($content){
-	//not running in a widget, is running in a single view, the post type is a testimonial
-	if ( /*empty($this->in_widget) &&*/ is_single() && get_post_type() == 'testimonial' ) {
+	global $easy_t_in_widget;
+	
+	//not running in a widget, is running in a single view or archive view such as category, tag, date, the post type is a testimonial
+	if ( empty($easy_t_in_widget) && (is_single() || is_archive()) && get_post_type() == 'testimonial' ) {				
 		//load needed data
 		$postid = get_the_ID();
 		
@@ -1312,7 +1406,7 @@ function single_testimonial_content_filter($content){
 			'show_other' => 1,
 			'width' => '100%'
 		);
-		
+			
 		//build and return the single testimonial html		
 		$template_content = easy_t_get_single_testimonial_html($postid, $atts, true);
 		
@@ -1345,6 +1439,9 @@ function easy_t_build_classes_from_atts($atts = array()){
  */
 function easy_t_get_single_testimonial_html($postid, $atts, $is_single = false)
 {
+	//for use in the filter
+	$atts['is_single'] = $is_single;
+	
 	//if this is being loaded from the single post view
 	//then we already have the post data setup (we are in The Loop)
 	//so skip this step
@@ -1411,7 +1508,7 @@ function easy_t_get_single_testimonial_html($postid, $atts, $is_single = false)
 	wp_reset_postdata();	
 	$content = ob_get_contents();
 	ob_end_clean();	
-	return $content;
+	return apply_filters('easy_t_get_single_testimonial_html', $content, $testimonial, $atts, $postid);
 }
 
 //given a full set of data for a testimonial

@@ -49,7 +49,9 @@ class TestimonialsGridWidget extends WP_Widget
 			'order' => 'ASC',
 			'order_by' => 'date',
 			'show_other' => 0,
-			'theme' => get_option('testimonials_style', 'default_style')
+			'theme' => get_option('testimonials_style', 'default_style'),
+			'paginate' => false,
+			'testimonials_per_page' => 10
 		);
 		$instance = wp_parse_args( (array) $instance, $defaults );
 		$title = $instance['title'];
@@ -64,6 +66,8 @@ class TestimonialsGridWidget extends WP_Widget
 		$order_by = $instance['order_by'];
 		$show_other = isset($instance['show_other']) ? $instance['show_other'] : 0;
 		$theme = $instance['theme'];
+		$paginate = $instance['paginate'];
+		$testimonials_per_page = $instance['testimonials_per_page'];
 		$testimonial_categories = get_terms( 'easy-testimonial-category', 'orderby=title&hide_empty=0' );				
 		$cols = $instance['cols'];
 		$grid_width = isset($instance['grid_width']) ? $instance['grid_width'] : '';
@@ -170,6 +174,35 @@ class TestimonialsGridWidget extends WP_Widget
 					</p>
 				</div>
 			</fieldset>
+
+			<fieldset class="radio_text_input">
+				<legend>Testimonials Per Page</legend> &nbsp;
+				<div class="bikeshed bikeshed_radio">
+					<p>
+						<label>
+							<input type="radio" name="<?php echo $this->get_field_name('paginate'); ?>" value="all" class="tog" <?php echo ($paginate == 'all' ? 'checked="checked"' : '');?>>All On One Page
+						</label>
+						<br/>
+						<em>No pagination links will be displayed and all testimonials will be shown.</em>
+					</p>
+					<p>
+						<label>
+							<input type="radio" name="<?php echo $this->get_field_name('paginate'); ?>" value="max" class="tog" <?php echo ($paginate == 'max' ? 'checked="checked"' : '');?>>Max Per Page: 
+						</label>
+						<input type="text" name="<?php echo $this->get_field_name('testimonials_per_page'); ?>" id="<?php echo $this->get_field_id('testimonials_per_page'); ?>" class="small-text" value="<?php echo esc_attr($testimonials_per_page); ?>">
+						<br/>
+						<em>Pagination links will be displayed with this many testimonials shown per page.</em>
+					</p>
+					<p>
+						<label>
+							<input type="radio" name="<?php echo $this->get_field_name('paginate'); ?>" value="0" class="tog" <?php echo ($paginate == false ? 'checked="checked"' : '');?>>Specific Amount: 
+						</label>
+						<input type="text" name="<?php echo $this->get_field_name('count'); ?>" id="<?php echo $this->get_field_id('count'); ?>" class="small-text" value="<?php echo esc_attr($count); ?>">
+						<br/>
+						<em>No pagination links will be displayed and we will try to load exactly this many testimonials.</em>
+					</p>
+				</div>
+			</fieldset>
 			
 			<fieldset class="radio_text_input">
 				<legend>Filter Testimonials:</legend> &nbsp;
@@ -184,13 +217,6 @@ class TestimonialsGridWidget extends WP_Widget
 						</select>
 						<br/>
 						<em><a href="<?php echo admin_url('edit-tags.php?taxonomy=easy-testimonial-category&post_type=testimonial'); ?>">Manage Categories</a></em>
-					</p>
-					
-					<p>
-						<label for="<?php echo $this->get_field_id('count'); ?>">Count:</label>
-						<input class="widefat" id="<?php echo $this->get_field_id('count'); ?>" name="<?php echo $this->get_field_name('count'); ?>" type="text" value="<?php echo esc_attr($count); ?>" /></label>
-						<br />
-						<em>The number of Testimonials to display. Leave blank to display all of your Testimonials.</em>
 					</p>
 					
 					<p>
@@ -288,11 +314,16 @@ class TestimonialsGridWidget extends WP_Widget
 		$instance['cell_width'] = isset($new_instance['cell_width']) ? $new_instance['cell_width'] : '';
 		$instance['responsive'] = isset($new_instance['responsive']) ? $new_instance['responsive'] : 1;
 		$instance['equal_height_rows'] = isset($new_instance['equal_height_rows']) ? $new_instance['equal_height_rows'] : 0;
+		$instance['paginate'] = $new_instance['paginate'];
+		$instance['testimonials_per_page'] = $new_instance['testimonials_per_page'];
 		
 		return $instance;
 	}
 
 	function widget($args, $instance){
+		global $easy_t_in_widget;
+		$easy_t_in_widget = true;
+		
 		extract($args, EXTR_SKIP);
 
 		echo $before_widget;
@@ -316,6 +347,8 @@ class TestimonialsGridWidget extends WP_Widget
 		$cell_width = isset($instance['cell_width']) ? $instance['cell_width'] : false;
 		$responsive = isset($instance['responsive']) ? $instance['responsive'] : false;
 		$equal_height_rows = isset($instance['equal_height_rows']) ? $instance['equal_height_rows'] : false;
+		$paginate =  empty($instance['paginate']) ? false : $instance['paginate'];
+		$testimonials_per_page =  empty($instance['testimonials_per_page']) ? 10 : $instance['testimonials_per_page'];
 
 		if (!empty($title)){
 			echo $before_title . $title . $after_title;;
@@ -354,11 +387,15 @@ class TestimonialsGridWidget extends WP_Widget
 			'grid_class' => $grid_class,
 			'cell_width' => $cell_width,
 			'responsive' => $responsive,
-			'equal_height_rows' => $equal_height_rows
+			'equal_height_rows' => $equal_height_rows,
+			'paginate' => $paginate,
+			'testimonials_per_page' => $testimonials_per_page
 		);
 		echo easy_t_testimonials_grid_shortcode( $args );
 
 		echo $after_widget;
+		
+		$easy_t_in_widget = false;
 	}
 	
 	function get_theme_group_label($theme_group)
