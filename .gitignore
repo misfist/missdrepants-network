@@ -5,6 +5,8 @@
 *.lock
 .DS_Store
 
+sunrise.php
+
 node_modules
 
 advanced-cache.php
