@@ -21,6 +21,7 @@ upgrade/
 uploads/
 /vendor/
 w3tc-config/
+plugins/simply-instagram/cache-api/selffeed.json
 
 plugins/debug*
 plugins/developer/
