@@ -281,8 +281,8 @@ class easyTestimonialOptions
 		global $current_user;
 		?>
 		<div class="topper">
-			<h3>Save 20% on Easy Testimonials Pro!</h3>
-			<p class="pitch">Sign-up for our newsletter, and we’ll send you a coupon for 20% off your upgrade to Easy Testimonials Pro!</p>
+			<h3>Save 10% on Easy Testimonials Pro!</h3>
+			<p class="pitch">Sign-up for our newsletter, and we’ll send you a coupon for 10% off your upgrade to Easy Testimonials Pro!</p>
 		</div>
 		<div id="mc_embed_signup">
 			<!--<form action="http://illuminatikarate.us2.list-manage.com/subscribe/post?u=403e206455845b3b4bd0c08dc&amp;id=a70177def0" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>-->
@@ -299,9 +299,9 @@ class easyTestimonialOptions
 				<p class="secure"><img src="<?php echo plugins_url( 'img/lock.png', __FILE__ ); ?>" alt="Lock" width="16px" height="16px" />We respect your privacy.</p>
 				
 				<input type="hidden" id="mc-upgrade-plugin-name" value="Easy Testimonials Pro" />
-				<input type="hidden" id="mc-upgrade-link-per" value="https://goldplugins.com/purchase/easy-testimonials-pro/single?promo=newsub20" />
-				<input type="hidden" id="mc-upgrade-link-biz" value="https://goldplugins.com/purchase/easy-testimonials-pro/business?promo=newsub20" />
-				<input type="hidden" id="mc-upgrade-link-dev" value="https://goldplugins.com/purchase/easy-testimonials-pro/developer?promo=newsub20" />
+				<input type="hidden" id="mc-upgrade-link-per" value="https://goldplugins.com/purchase/easy-testimonials-pro/single?promo=newsub10" />
+				<input type="hidden" id="mc-upgrade-link-biz" value="https://goldplugins.com/purchase/easy-testimonials-pro/business?promo=newsub10" />
+				<input type="hidden" id="mc-upgrade-link-dev" value="https://goldplugins.com/purchase/easy-testimonials-pro/developer?promo=newsub10" />
 
 				<div class="features">
 					<strong>When you upgrade, you'll instantly unlock:</strong>

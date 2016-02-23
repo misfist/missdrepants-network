@@ -56,12 +56,7 @@ class TestimonialsPlugin_Importer
 			
 			//if this is empty, a match wasn't found and therefore we are safe to insert
 			if(empty($postslist)){				
-				//insert the testimonials
-				
-				echo "<pre>";
-				print_r($testimonial);
-				echo "</pre>";
-				
+				//insert the testimonials				
 				$tags = array();
 			   
 				$post = array(
