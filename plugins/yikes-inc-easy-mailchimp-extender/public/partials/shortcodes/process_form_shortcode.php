@@ -336,11 +336,12 @@ function process_mailchimp_shortcode( $atts ) {
 		// Check for AJAX
 		if( ( ! empty( $atts['ajax'] ) && $atts['ajax'] == 1 ) || $form_settings['submission_settings']['ajax'] == 1 ) {
 			// enqueue our ajax script
-			wp_register_script( 'yikes-easy-mc-ajax' , YIKES_MC_URL . 'public/js/yikes-mc-ajax-forms.js' , array( 'jquery' ) , 'yikes-inc-easy-mailchimp-extender', false );
+			wp_register_script( 'yikes-easy-mc-ajax' , YIKES_MC_URL . 'public/js/yikes-mc-ajax-forms.min.js' , array( 'jquery' ) , 'yikes-inc-easy-mailchimp-extender', false );
 			wp_localize_script( 'yikes-easy-mc-ajax' , 'object' , array( 
 				'ajax_url' => esc_url( admin_url( 'admin-ajax.php' ) ),
 				'page_data' => $page_data,
 				'interest_group_checkbox_error' => apply_filters( 'yikes-mailchimp-interest-group-checkbox-error', __( 'This field is required.', 'yikes-inc-easy-mailchimp-extender' ), $form_id ),
+				'preloader_url' => apply_filters( 'yikes-mailchimp-preloader', esc_url_raw( admin_url( 'images/wpspin_light.gif' ) ) ),
 			) );
 			wp_enqueue_script( 'yikes-easy-mc-ajax' );
 		}
@@ -598,6 +599,10 @@ function process_mailchimp_shortcode( $atts ) {
 							case 'address':
 								// required fields
 								$required_fields = array( 'addr1' => 'address' , 'addr2' => 'address 2', 'city' => 'city', 'state' =>'state', 'zip' =>'zip' , 'country' => 'country' );
+								
+								// setup the default country value
+								$default_country = apply_filters( 'yikes-mailchimp-default-country-value', 'US' );
+	
 								// store number for looping
 								$x = 1;
 								foreach( $required_fields as $type => $label ) {
@@ -643,7 +648,7 @@ function process_mailchimp_shortcode( $atts ) {
 										case 'state':
 											
 											?>
-											<label for="<?php echo $field['merge']; ?>" <?php echo implode( ' ' , $label_array ); ?> data-attr-name="state-dropdown">
+											<label for="<?php echo $field['merge']; ?>" <?php echo implode( ' ' , $label_array ); ?> data-attr-name="state-dropdown"<?php if( ! in_array( $default_country, array( 'US' ) ) ) { ?> style="display: none;"<?php } ?>>
 											
 												<!-- dictate label visibility -->
 												<?php if( ! isset( $field['hide-label'] ) ) { ?>
@@ -659,13 +664,13 @@ function process_mailchimp_shortcode( $atts ) {
 
 											</label>
 											<?php
-
+											
 										break;
 										
 										case 'zip':
-											
+
 											?>
-											<label for="<?php echo $field['merge']; ?>" <?php echo implode( ' ' , $label_array ); ?> data-attr-name="zip-input">
+											<label for="<?php echo $field['merge']; ?>" <?php echo implode( ' ' , $label_array ); ?> data-attr-name="zip-input"<?php if( ! in_array( $default_country, array( 'US', 'GB' ) ) ) { ?> style="display: none;"<?php } ?>>
 													
 												<?php if( ! isset( $field['hide-label'] ) ) { ?>
 													<span class="<?php echo esc_attr( $field['merge'] ) . '-label'; ?>">
@@ -673,11 +678,11 @@ function process_mailchimp_shortcode( $atts ) {
 													</span>
 												<?php } ?>
 												
-												<input <?php echo implode( ' ' , $field_array ); ?> type="text" pattern="\d{5,5}(-\d{4,4})?" title="<?php _e( '5 digit zip code, numbers only' , 'yikes-inc-easy-mailchimp-extender' ); ?>" value="<?php if( isset( $_POST[$field['merge']] ) && $form_submitted != 1 ) { echo $_POST[$field['merge']]; } else { echo esc_attr( $default_value ); } ?>">
+												<input <?php echo implode( ' ' , $field_array ); ?> type="text" pattern="<?php echo apply_filters( 'yikes-mailchimp-zip-pattern', '\d{5,5}(-\d{4,4})?' ); ?>" title="<?php _e( '5 digit zip code, numbers only' , 'yikes-inc-easy-mailchimp-extender' ); ?>" value="<?php if( isset( $_POST[$field['merge']] ) && $form_submitted != 1 ) { echo $_POST[$field['merge']]; } else { echo esc_attr( $default_value ); } ?>">
 					
 											</label>
 											<?php
-											
+												
 										break;
 										
 										case 'country':
@@ -689,13 +694,27 @@ function process_mailchimp_shortcode( $atts ) {
 													if( country_value != 'US' ) {
 														// fade out the non-US fields
 														jQuery( e ).parents( '.yikes-mailchimp-container' ).find( jQuery( 'label[data-attr-name="state-dropdown"]' ) ).fadeOut();
-														jQuery( e ).parents( '.yikes-mailchimp-container' ).find( jQuery( 'label[data-attr-name="zip-input"]' ) ).fadeOut();
+														// Great Britain / UK should allow 'zip/postal code'
+														if( country_value != 'GB' ) {
+															jQuery( e ).parents( '.yikes-mailchimp-container' ).find( jQuery( 'label[data-attr-name="zip-input"]' ) ).fadeOut();
+														} else {
+															jQuery( e ).parents( '.yikes-mailchimp-container' ).find( jQuery( 'label[data-attr-name="zip-input"]' ) ).fadeIn();
+														}
 													} else {
-														jQuery( e ).parents( '.yikes-mailchimp-container' ).find( jQuery( 'label[data-attr-name="state-dropdown"]' ) ).fadeIn();
-														jQuery( e ).parents( '.yikes-mailchimp-container' ).find( jQuery( 'label[data-attr-name="zip-input"]' ) ).fadeIn();
+														if( country_value == 'GB' ) {
+															jQuery( e ).parents( '.yikes-mailchimp-container' ).find( jQuery( 'label[data-attr-name="zip-input"]' ) ).fadeIn();
+														} else {
+															jQuery( e ).parents( '.yikes-mailchimp-container' ).find( jQuery( 'label[data-attr-name="state-dropdown"]' ) ).fadeIn();
+															jQuery( e ).parents( '.yikes-mailchimp-container' ).find( jQuery( 'label[data-attr-name="zip-input"]' ) ).fadeIn();
+														}
 													}
 												}
 											</script>
+											
+											<?php 	
+												// setup the default country value
+												$default_country = apply_filters( 'yikes-mailchimp-default-country-value', 'US' );
+											?>
 											
 											<label for="<?php echo $field['merge']; ?>" <?php echo implode( ' ' , $label_array ); ?>>
 												
@@ -845,7 +864,7 @@ function process_mailchimp_shortcode( $atts ) {
 										<select <?php echo implode( ' ' , $field_array ); ?>>
 											<?php 	
 												// decode for looping
-												$choices = json_decode( stripslashes( $field['choices'] ) , true );
+												$choices = json_decode( $field['choices'], true );
 												foreach( $choices as $choice ) {
 													?><option value="<?php echo $choice; ?>" <?php selected( $default_value , $x ); ?>><?php echo esc_attr( stripslashes( $choice ) ); ?></option><?php
 													$x++;
@@ -1012,7 +1031,7 @@ function process_mailchimp_shortcode( $atts ) {
 	
 									?>
 	
-									<label for="<?php echo esc_attr( $field['group_id'] ); ?>" <?php echo implode( ' ' , $label_array ); ?>>
+									<label for="<?php echo esc_attr( $field['group_id'] ); ?>" <?php echo implode( ' ' , $label_array ); ?>>	
 										<!-- dictate label visibility -->
 										<?php if( ! isset( $field['hide-label'] ) ) { ?>
 											<span class="<?php echo esc_attr( $field['group_id'] ) . '-label'; ?>">
@@ -1096,9 +1115,7 @@ function process_mailchimp_shortcode( $atts ) {
 					echo $recaptcha_box;
 				}
 				if( is_user_logged_in() ) {
-					if( current_user_can( apply_filters( 'yikes-mailchimp-user-role-access' , 'manage_options' ) ) ) {
-						$admin_class = ' admin-logged-in';
-					}
+					$admin_class = ( current_user_can( apply_filters( 'yikes-mailchimp-user-role-access' , 'manage_options' ) ) ) ? ' admin-logged-in' : '';
 				} else {
 					$admin_class = '';
 				}
