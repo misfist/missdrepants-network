@@ -16,6 +16,145 @@ function updraft_delete(key, nonce, showremote) {
 	jQuery('#updraft-delete-modal').dialog('open');
 }
 
+function updraft_remote_storage_tab_activation(the_method){
+	jQuery('.updraftplusmethod').hide();
+	jQuery('.remote-tab').data('active', false);
+	jQuery('.remote-tab').removeClass('nav-tab-active');
+	jQuery('.updraftplusmethod.'+the_method).show();
+	jQuery('.remote-tab-'+the_method).data('active', true);
+	jQuery('.remote-tab-'+the_method).addClass('nav-tab-active');
+}
+
+function updraft_remote_storage_tabs_setup() {
+	
+	var anychecked = 0;
+	var set = jQuery('.updraft_servicecheckbox:checked');
+	
+	jQuery(set).each(function(ind, obj) {
+		var ser = jQuery(obj).val();
+		
+		if(jQuery(obj).attr('id') != 'updraft_servicecheckbox_none') {
+			anychecked++;
+		}
+		
+		jQuery('.remote-tab-'+ser).show();
+		if(ind == jQuery(set).length-1){
+			updraft_remote_storage_tab_activation(ser);
+		}
+	});
+	if (anychecked > 0) {
+		jQuery('.updraftplusmethod.none').hide();
+	}
+	
+	jQuery('.updraft_servicecheckbox').change(function() {
+		var sclass = jQuery(this).attr('id');
+		if ('updraft_servicecheckbox_' == sclass.substring(0,24)) {
+			var serv = sclass.substring(24);
+			if (null != serv && '' != serv) {
+				if (jQuery(this).is(':checked')) {
+					anychecked++;
+					jQuery('.remote-tab-'+serv).fadeIn();
+					updraft_remote_storage_tab_activation(serv);
+				} else {
+					anychecked--;
+					jQuery('.remote-tab-'+serv).hide();
+					//Check if this was the active tab, if yes, switch to another
+					if(jQuery('.remote-tab-'+serv).data('active') == true){
+						updraft_remote_storage_tab_activation(jQuery('.remote-tab:visible').last().attr('name'));
+					}
+				}
+			}
+		}
+		
+		if (anychecked <= 0) {
+			jQuery('.updraftplusmethod.none').fadeIn();
+		} else {
+			jQuery('.updraftplusmethod.none').hide();
+		}
+	});
+	
+	//Add stuff for free version
+	jQuery('.updraft_servicecheckbox:not(.multi)').change(function(){
+		var svalue = jQuery(this).attr('value');
+		
+		if (jQuery(this).is(':not(:checked)')) {
+			jQuery('.updraftplusmethod.'+svalue).hide();
+			jQuery('.updraftplusmethod.none').fadeIn();
+		} else {
+			jQuery('.updraft_servicecheckbox').not(this).prop('checked', false);
+		}
+	});
+	
+	var servicecheckbox = jQuery('.updraft_servicecheckbox');
+	if (typeof servicecheckbox.labelauty === 'function') { servicecheckbox.labelauty(); }
+	
+}
+
+function updraft_remote_storage_test(method, result_callback) {
+	
+	var method_label = jQuery('#updraft-'+method+'-test').data('method_label');
+	
+	jQuery('#updraft-'+method+'-test').html(updraftlion.testing_settings.replace('%s', method_label));
+	
+	var data = {
+		action: 'updraft_ajax',
+		subaction: 'credentials_test',
+		method: method,
+		nonce: updraft_credentialtest_nonce
+	};
+	
+	// Add the other items to the data object. The expert mode settings are for the generic SSL options.
+	jQuery('#updraft-navtab-settings-content .updraftplusmethod.'+method+' input[data-updraft_settings_test], #updraft-navtab-settings-content .expertmode input[data-updraft_settings_test]').each(function(index, item) {
+		var item_key = jQuery(item).data('updraft_settings_test');
+		var input_type = jQuery(item).attr('type');
+		if (!item_key) { return; }
+		if (!input_type) {
+			console.log("UpdraftPlus: settings test input item with no type found");
+			console.log(item);
+			// A default
+			input_type = 'text';
+		}
+		var value = null;
+		if ('checkbox' == input_type) {
+			value = jQuery(item).is(':checked') ? 1 : 0;
+		} else if ('text' == input_type || 'password' == input_type) {
+			value = jQuery(item).val();
+		} else {
+			console.log("UpdraftPlus: settings test input item with unrecognised type ("+input_type+") found");
+			console.log(item);
+		}
+		data[item_key] = value;
+	});
+	// Data from any text areas or select drop-downs
+	jQuery('#updraft-navtab-settings-content .updraftplusmethod.'+method+' textarea[data-updraft_settings_test], #updraft-navtab-settings-content .updraftplusmethod.'+method+' select[data-updraft_settings_test]').each(function(index, item) {
+		var item_key = jQuery(item).data('updraft_settings_test');
+		data[item_key] = jQuery(item).val();
+	});
+
+	jQuery.post(ajaxurl, data, function(response, status) {
+		jQuery('#updraft-'+method+'-test').html(updraftlion.test_settings.replace('%s', method_label));
+		if ('undefined' !== typeof result_callback && false != result_callback) {
+			result_callback = result_callback.call(this, response, status, data);
+		}
+		if ('undefined' !== typeof result_callback && false === result_callback) { 
+			alert(updraftlion.settings_test_result.replace('%s', method_label)+' '+response);
+		}
+	});
+}
+
+function backupnow_whichfiles_checked(onlythesefileentities){
+	jQuery('#backupnow_includefiles_moreoptions input[type="checkbox"]').each(function(index) {
+		if (!jQuery(this).is(':checked')) { return; }
+		var name = jQuery(this).attr('name');
+		if (name.substring(0, 16) != 'updraft_include_') { return; }
+		var entity = name.substring(16);
+		if (onlythesefileentities != '') { onlythesefileentities += ','; }
+		onlythesefileentities += entity;
+	});
+// 	console.log(onlythesefileentities);
+	return onlythesefileentities;
+}
+
 function updraft_deleteallselected() {
 	var howmany = 0;
 	var remote_exists = 0;
@@ -61,7 +200,7 @@ function updraft_delete_old_dirs() {
 
 function updraft_initiate_restore(whichset) {
 	jQuery('#updraft-migrate-modal').dialog('close');
-	jQuery("#restore-"+whichset).click();
+	jQuery('#updraft-navtab-backups-content .updraft_existing_backups button[data-backup_timestamp="'+whichset+'"]').click();
 }
 
 function updraft_restore_setoptions(entities) {
@@ -112,6 +251,12 @@ function updraft_backup_dialog_open() {
 	}
 }
 
+var onlythesefileentities = backupnow_whichfiles_checked('');
+if ('' == onlythesefileentities) {
+	jQuery("#backupnow_includefiles_moreoptions").show();
+} else {
+	jQuery("#backupnow_includefiles_moreoptions").hide();
+}
 
 function updraft_migrate_dialog_open() {
 	jQuery('#updraft_migrate_modal_alt').hide();
@@ -483,9 +628,10 @@ function updraft_updatehistory(rescan, remotescan) {
 var updraft_interval_week_val = false;
 var updraft_interval_month_val = false;
 
-function updraft_intervals_monthly_or_not(selector_id, is_monthly, now_showing) {
-	var selector = '#'+selector_id;
+function updraft_intervals_monthly_or_not(selector_id, now_showing) {
+	var selector = '#updraft-navtab-settings-content #'+selector_id;
 	var current_length = jQuery(selector+' option').length;
+	var is_monthly = ('monthly' == now_showing) ? true : false;
 	var existing_is_monthly = false;
 	if (current_length > 10) { existing_is_monthly = true; }
 	if (!is_monthly && !existing_is_monthly) {
@@ -519,60 +665,52 @@ function updraft_intervals_monthly_or_not(selector_id, is_monthly, now_showing) 
 
 function updraft_check_same_times() {
 	var dbmanual = 0;
-	var file_interval = jQuery('#updraft_interval').val();
+	var file_interval = jQuery('#updraft-navtab-settings-content .updraft_interval').val();
 	if (file_interval == 'manual') {
 // 		jQuery('#updraft_files_timings').css('opacity', '0.25');
-		jQuery('#updraft_files_timings').hide();
+		jQuery('#updraft-navtab-settings-content .updraft_files_timings').hide();
 	} else {
 // 		jQuery('#updraft_files_timings').css('opacity', 1);
-		jQuery('#updraft_files_timings').show();
+		jQuery('#updraft-navtab-settings-content .updraft_files_timings').show();
 	}
 	
 	if ('weekly' == file_interval || 'fortnightly' == file_interval || 'monthly' == file_interval) {
-		if ('monthly' == file_interval) {
-			updraft_intervals_monthly_or_not('updraft_startday_files', true, file_interval);
-		} else {
-			updraft_intervals_monthly_or_not('updraft_startday_files', false, file_interval);
-		}
-		jQuery('#updraft_startday_files').show();
+		updraft_intervals_monthly_or_not('updraft_startday_files', file_interval);
+		jQuery('#updraft-navtab-settings-content .updraft_startday_files').show();
 	} else {
 		jQuery('.updraft_monthly_extra_words_updraft_startday_files').remove();
-		jQuery('#updraft_startday_files').hide();
+		jQuery('#updraft-navtab-settings-content .updraft_startday_files').hide();
 	}
 	
-	var db_interval = jQuery('#updraft_interval_database').val();
+	var db_interval = jQuery('#updraft-navtab-settings-content .updraft_interval_database').val();
 	if (db_interval == 'manual') {
 		dbmanual = 1;
 // 		jQuery('#updraft_db_timings').css('opacity', '0.25');
-		jQuery('#updraft_db_timings').hide();
+		jQuery('#updraft-navtab-settings-content .updraft_db_timings').hide();
 	}
 	
 	if ('weekly' == db_interval || 'fortnightly' == db_interval || 'monthly' == db_interval) {
-		if ('monthly' == db_interval) {
-			updraft_intervals_monthly_or_not('updraft_startday_db', true, db_interval);
-		} else {
-			updraft_intervals_monthly_or_not('updraft_startday_db', false, db_interval);
-		}
-		jQuery('#updraft_startday_db').show();
+		updraft_intervals_monthly_or_not('updraft_startday_db', db_interval);
+		jQuery('#updraft-navtab-settings-content .updraft_startday_db').show();
 	} else {
 		jQuery('.updraft_monthly_extra_words_updraft_startday_db').remove();
-		jQuery('#updraft_startday_db').hide();
+		jQuery('#updraft-navtab-settings-content .updraft_startday_db').hide();
 	}
 	
 	if (db_interval == file_interval) {
 // 		jQuery('#updraft_db_timings').css('opacity','0.25');
-		jQuery('#updraft_db_timings').hide();
+		jQuery('#updraft-navtab-settings-content .updraft_db_timings').hide();
 // 		jQuery('#updraft_same_schedules_message').show();
 		if (0 == dbmanual) {
-			jQuery('#updraft_same_schedules_message').show();
+			jQuery('#updraft-navtab-settings-content .updraft_same_schedules_message').show();
 		} else {
-			jQuery('#updraft_same_schedules_message').hide();
+			jQuery('#updraft-navtab-settings-content .updraft_same_schedules_message').hide();
 		}
 	} else {
-		jQuery('#updraft_same_schedules_message').hide();
+		jQuery('#updraft-navtab-settings-content .updraft_same_schedules_message').hide();
 		if (0 == dbmanual) {
 // 			jQuery('#updraft_db_timings').css('opacity', '1');
-			jQuery('#updraft_db_timings').show();
+			jQuery('#updraft-navtab-settings-content .updraft_db_timings').show();
 		}
 	}
 }
@@ -914,7 +1052,6 @@ function updraft_backupnow_go(backupnow_nodb, backupnow_nofiles, backupnow_noclo
 		extradata: extradata
 	};
 	
-	
 	if ('' != onlythesefileentities) {
 		params.onlythisfileentity = onlythesefileentities;
 	}
@@ -957,6 +1094,27 @@ jQuery(document).ready(function($){
 		}
 	});
 	
+	jQuery('#updraft-navtab-settings-content .updraftplusmethod').on('click', 'button.updraft-test-button', function() {
+		var method = jQuery(this).data('method');
+		updraft_remote_storage_test(method, function(response, status, data) {
+			
+			if ('sftp' != method) { return false; }
+			
+			if (data.hasOwnProperty('scp') && data.scp) {
+				alert(updraftlion.settings_test_result.replace('%s', 'SCP')+' '+response);
+			} else {
+				alert(updraftlion.settings_test_result.replace('%s', 'SFTP')+' '+response);
+			}
+			
+			return true;
+			
+		});
+	});
+	
+	jQuery('#updraft-navtab-settings-content select.updraft_interval, #updraft-navtab-settings-content select.updraft_interval_database').change(function() {
+		updraft_check_same_times();
+	});
+	
 	jQuery('#backupnow_includefiles_showmoreoptions').click(function(e) {
 		e.preventDefault();
 		jQuery('#backupnow_includefiles_moreoptions').toggle();
@@ -981,22 +1139,47 @@ jQuery(document).ready(function($){
 		e.preventDefault();
 		updraft_updatehistory(1, 1);
 	});
+
+	function updraftcentral_keys_setupform(on_page_load) {
+		var is_other = jQuery('#updraftcentral_mothership_other').is(':checked') ? true : false;
+		if (is_other) {
+			jQuery('#updraftcentral_keycreate_mothership').prop('disabled', false);
+			if (on_page_load) {
+				jQuery('#updraftcentral_keycreate_mothership_firewalled_container').show();
+			} else {
+				jQuery('#updraftcentral_keycreate_mothership_firewalled_container').slideDown();
+				jQuery('#updraftcentral_keycreate_mothership').focus();
+			}
+		} else {
+			jQuery('#updraftcentral_keycreate_mothership').prop('disabled', true);
+			if (on_page_load) {
+				jQuery('#updraftcentral_keycreate_mothership_firewalled_container').hide();
+			} else {
+				jQuery('#updraftcentral_keycreate_mothership_firewalled_container').slideUp();
+			}
+		}
+	}
 	
-	// Remote Control
-	jQuery('#updraft_central_keycreate_go').click(function(e) {
+	jQuery('#updraftcentral_keys').on('change', 'input[type="radio"]', function() {
+		updraftcentral_keys_setupform(false);
+	});
+	// Initial setup (for browsers, e.g. Firefox, that remember form selection state but not DOM state, which can leave an inconsistent state)
+	updraftcentral_keys_setupform(true);
+	
+	jQuery('#updraftcentral_keys').on('click', '#updraftcentral_view_log', function(e) {
 		e.preventDefault();
-		jQuery('#updraft_central_key').html(updraftlion.creating);
+		jQuery('#updraftcentral_view_log_container').block({ message: '<div style="margin: 8px; font-size:150%;"><img src="'+updraftlion.ud_url+'/images/udlogo-rotating.gif" height="80" width="80" style="padding-bottom:10px;"><br>'+updraftlion.fetching+'</div>'});
 		try {
 			jQuery.post(ajaxurl,  {
 				action: 'updraft_ajax',
-				subaction: 'remotecontrol_createkey',
+				subaction: 'updraftcentral_get_log',
 				nonce: updraft_credentialtest_nonce
 			}, function(response) {
+				jQuery('#updraftcentral_view_log_container').unblock();
 				try {
 					resp = jQuery.parseJSON(response);
-					alert(resp.r);
-					if (resp.hasOwnProperty('bundle')) {
-						jQuery('#updraft_central_key').html('<textarea onclick="this.select();" style="width:620px; height:165px; word-wrap:break-word; border: 1px solid #aaa; border-radius: 3px; padding:4px;">'+resp.bundle+'</textarea>');
+					if (resp.hasOwnProperty('log_contents')) {
+						jQuery('#updraftcentral_view_log_contents').html('<div style="border:1px solid;padding: 2px;max-height: 400px; overflow-y:scroll;">'+resp.log_contents+'</div>');
 					} else {
 						console.log(resp);
 					}
@@ -1010,6 +1193,96 @@ jQuery(document).ready(function($){
 			console.log(err);
 		}
 	});
+	
+	// UpdraftCentral
+	jQuery('#updraftcentral_keys').on('click', '#updraftcentral_keycreate_go', function(e) {
+		e.preventDefault();
+		
+		var is_other = jQuery('#updraftcentral_mothership_other').is(':checked') ? true : false;
+		
+		var key_description = jQuery('#updraftcentral_keycreate_description').val();
+
+		var where_send = '__updraftpluscom';
+		
+		data = {
+			action: 'updraft_ajax',
+			subaction: 'updraftcentral_create_key',
+			key_description: key_description,
+			nonce: updraft_credentialtest_nonce
+		};
+		
+		if (is_other) {
+			where_send = jQuery('#updraftcentral_keycreate_mothership').val();
+			if (where_send.substring(0, 4) != 'http') {
+				alert(updraftlion.enter_mothership_url);
+				return;
+			}
+			data.mothership_firewalled = jQuery('#updraftcentral_keycreate_mothership_firewalled').is(':checked');
+		}
+		
+		data.where_send = where_send;
+		
+		jQuery('#updraftcentral_keys').block({ message: '<div style="margin: 8px; font-size:150%;"><img src="'+updraftlion.ud_url+'/images/udlogo-rotating.gif" height="80" width="80" style="padding-bottom:10px;"><br>'+updraftlion.creating+'</div>'});
+
+		try {
+			jQuery.post(ajaxurl, data, function(response) {
+				jQuery('#updraftcentral_keys').unblock();
+				try {
+					resp = jQuery.parseJSON(response);
+					if (resp.hasOwnProperty('error')) {
+						alert(resp.error);
+						console.log(resp);
+						return;
+					}
+					alert(resp.r);
+					if (resp.hasOwnProperty('keys_table')) {
+						jQuery('#updraftcentral_keys_content').html(resp.keys_table);
+					}
+					if (resp.hasOwnProperty('bundle')) {
+						jQuery('#updraftcentral_keys_content').append(resp.r+'<br><textarea onclick="this.select();" style="width:620px; height:165px; word-wrap:break-word; border: 1px solid #aaa; border-radius: 3px; padding:4px;">'+resp.bundle+'</textarea>');
+					} else {
+						console.log(resp);
+					}
+				} catch (err) {
+					alert(updraftlion.unexpectedresponse+' '+response);
+					console.log(err);
+				} 
+			});
+		} catch (err) {
+			jQuery('#updraft_central_key').html();
+			console.log(err);
+		}
+	});
+	
+	jQuery('#updraftcentral_keys').on('click', '.updraftcentral_key_delete', function(e) {
+		e.preventDefault();
+		var key_id = jQuery(this).data('key_id');
+		if ('undefined' == typeof key_id) {
+			console.log("UpdraftPlus: .updraftcentral_key_delete clicked, but no key ID found");
+			return;
+		}
+
+		jQuery('#updraftcentral_keys').block({ message: '<div style="margin: 8px; font-size:150%;"><img src="'+updraftlion.ud_url+'/images/udlogo-rotating.gif" height="80" width="80" style="padding-bottom:10px;"><br>'+updraftlion.deleting+'</div>'});
+		
+		jQuery.post(ajaxurl,  {
+			action: 'updraft_ajax',
+			subaction: 'updraftcentral_delete_key',
+			nonce: updraft_credentialtest_nonce,
+			key_id: key_id
+		}, function(response) {
+			jQuery('#updraftcentral_keys').unblock();
+			try {
+				resp = jQuery.parseJSON(response);
+				if (resp.hasOwnProperty('keys_table')) {
+					jQuery('#updraftcentral_keys_content').html(resp.keys_table);
+				}
+			} catch (err) {
+				alert(updraftlion.unexpectedresponse+' '+response);
+				console.log(err);
+			}
+		});
+	});
+										
 	
 	jQuery('#updraft_reset_sid').click(function(e) {
 		e.preventDefault();
@@ -1028,136 +1301,6 @@ jQuery(document).ready(function($){
 				console.log(err);
 			}
 		});
-	});
-	
-	// UpdraftPlus Vault
-	
-	jQuery('#updraftvault_settings_cell').on('click', '.updraftvault_backtostart', function(e) {
-		e.preventDefault();
-		jQuery('#updraftvault_settings_showoptions').slideUp();
-		jQuery('#updraftvault_settings_connect').slideUp();
-		jQuery('#updraftvault_settings_connected').slideUp();
-		jQuery('#updraftvault_settings_default').slideDown();
-	});
-	
-	// Prevent default event when pressing return in the form
-	jQuery('#updraftvault_settings_connect input').keypress(function(e) {
-		if (e.which == 13) {
-			jQuery('#updraftvault_connect_go').click();
-			return false;
-		}
-	});
-	
-	jQuery('#updraftvault_settings_cell').on('click', '#updraftvault_recountquota', function(e) {
-		e.preventDefault();
-		jQuery('#updraftvault_recountquota').html(updraftlion.counting);
-		try {
-			jQuery.post(ajaxurl,  {
-				action: 'updraft_ajax',
-				subaction: 'vault_recountquota',
-				nonce: updraft_credentialtest_nonce
-			}, function(response) {
-				jQuery('#updraftvault_recountquota').html(updraftlion.updatequotacount);
-				try {
-					resp = jQuery.parseJSON(response);
-					if (resp.hasOwnProperty('html')) {
-						jQuery('#updraftvault_settings_connected').html(resp.html);
-						if (resp.hasOwnProperty('connected')) {
-							if (resp.connected) {
-								jQuery('#updraftvault_settings_default').hide();
-								jQuery('#updraftvault_settings_connected').show();
-							} else {
-								jQuery('#updraftvault_settings_connected').hide();
-								jQuery('#updraftvault_settings_default').show();
-							}
-						}
-					}
-				} catch (err) {
-					alert(updraftlion.unexpectedresponse+' '+response);
-					console.log(err);
-				} 
-			});
-		} catch (err) {
-			jQuery('#updraftvault_recountquota').html(updraftlion.updatequotacount);
-			console.log(err);
-		}
-	});
-	
-	jQuery('#updraftvault_settings_cell').on('click', '#updraftvault_disconnect', function(e) {
-		e.preventDefault();
-		jQuery('#updraftvault_disconnect').html(updraftlion.disconnecting);
-		try {
-			jQuery.post(ajaxurl,  {
-				action: 'updraft_ajax',
-				subaction: 'vault_disconnect',
-				nonce: updraft_credentialtest_nonce
-			}, function(response) {
-				jQuery('#updraftvault_disconnect').html(updraftlion.disconnect);
-				try {
-					resp = jQuery.parseJSON(response);
-					if (resp.hasOwnProperty('html')) {
-						jQuery('#updraftvault_settings_connected').html(resp.html).slideUp();
-						jQuery('#updraftvault_settings_default').slideDown();
-					}
-				} catch (err) {
-					alert(updraftlion.unexpectedresponse+' '+response);
-					console.log(response);
-					console.log(err);
-				} 
-			});
-		} catch (err) {
-			jQuery('#updraftvault_disconnect').html(updraftlion.disconnect);
-			console.log(err);
-		}
-	});
-	
-	jQuery('#updraftvault_connect').click(function(e) {
-		e.preventDefault();
-		jQuery('#updraftvault_settings_default').slideUp();
-		jQuery('#updraftvault_settings_connect').slideDown();
-	});
-	
-	jQuery('#updraftvault_showoptions').click(function(e) {
-		e.preventDefault();
-		jQuery('#updraftvault_settings_default').slideUp();
-		jQuery('#updraftvault_settings_showoptions').slideDown();
-	});
-	
-	jQuery('#updraftvault_connect_go').click(function(e) {
-		jQuery('#updraftvault_connect_go').html(updraftlion.connecting);
-		jQuery.post(ajaxurl,  {
-			action: 'updraft_ajax',
-			subaction: 'vault_connect',
-			nonce: updraft_credentialtest_nonce,
-			email: jQuery('#updraftvault_email').val(),
-			pass: jQuery('#updraftvault_pass').val(),
-		}, function(response) {
-			jQuery('#updraftvault_connect_go').html(updraftlion.connect);
-			try {
-				resp = jQuery.parseJSON(response);
-			} catch(err) {
-				console.log(err);
-				console.log(response);
-				alert(updraftlion.unexpectedresponse+' '+response);
-				return;
-			}
-			if (resp.hasOwnProperty('e')) {
-				updraft_html_modal('<h4 style="margin-top:0px; padding-top:0px;">'+updraftlion.errornocolon+'</h4><p>'+resp.e+'</p>', updraftlion.disconnect, 400, 250);
-				if (resp.hasOwnProperty('code') && resp.code == 'no_quota') {
-					jQuery('#updraftvault_settings_connect').slideUp();
-					jQuery('#updraftvault_settings_default').slideDown();
-				}
-			} else if (resp.hasOwnProperty('connected') && resp.connected && resp.hasOwnProperty('html')) {
-				jQuery('#updraftvault_settings_connect').slideUp();
-				jQuery('#updraftvault_settings_connected').html(resp.html).slideDown();
-			} else {
-				console.log(response);
-				console.log(resp);
-				alert(updraftlion.unexpectedresponse+' '+response);
-			}
-			
-		});
-		return false;
 	});
 	
 	jQuery("#updraft-navtab-settings-content form input:not('.udignorechange'), #updraft-navtab-settings-content form select").change(function(e){
@@ -1380,18 +1523,11 @@ jQuery(document).ready(function($){
 		var backupnow_nofiles = jQuery('#backupnow_includefiles').is(':checked') ? 0 : 1;
 		var backupnow_nocloud = jQuery('#backupnow_includecloud').is(':checked') ? 0 : 1;
 		
-		var onlythesefileentities = '';
-		jQuery('#backupnow_includefiles_moreoptions input[type="checkbox"]').each(function(index) {
-			if (!jQuery(this).is(':checked')) { return; }
-			var name = jQuery(this).attr('name');
-			if (name.substring(0, 16) != 'updraft_include_') { return; }
-			var entity = name.substring(16);
-			if (onlythesefileentities != '') { onlythesefileentities += ','; }
-			onlythesefileentities += entity;
-		});
+		var onlythesefileentities = backupnow_whichfiles_checked('');
 
 		if ('' == onlythesefileentities && 0 == backupnow_nofiles) {
 			alert(updraftlion.nofileschosen);
+			jQuery('#backupnow_includefiles_moreoptions').show();
 			return;
 		}
 		
@@ -1425,34 +1561,52 @@ jQuery(document).ready(function($){
 		autoOpen: false, height: 600, width: '75%', modal: true,
 	});
 	
-	jQuery('#enableexpertmode').click(function() {
-		jQuery('.expertmode').fadeIn();
-		jQuery('#enableexpertmode').off('click'); 
+	jQuery('#updraft-navtab-settings-content .enableexpertmode').click(function() {
+		jQuery('#updraft-navtab-settings-content .expertmode').fadeIn();
+		jQuery('#updraft-navtab-settings-content .enableexpertmode').off('click'); 
 		return false;
 	});
+	
+	jQuery('#updraft-navtab-settings-content .backupdirrow').on('click', 'a.updraft_backup_dir_reset', function() {
+		jQuery('#updraft_dir').val('updraft'); return false;
+	});
 
-	jQuery('#updraft_include_others').click(function() {
-		if (jQuery('#updraft_include_others').is(':checked')) {
-			jQuery('#updraft_include_others_exclude').slideDown();
+	function setup_file_entity_exclude_field(field, instant) {
+		if (jQuery('#updraft-navtab-settings-content #updraft_include_'+field).is(':checked')) {
+			if (instant) {
+				jQuery('#updraft-navtab-settings-content #updraft_include_'+field+'_exclude').show();
+			} else {
+				jQuery('#updraft-navtab-settings-content #updraft_include_'+field+'_exclude').slideDown();
+			}
 		} else {
-			jQuery('#updraft_include_others_exclude').slideUp();
+			if (instant) {
+				jQuery('#updraft-navtab-settings-content #updraft_include_'+field+'_exclude').hide();
+			} else {
+				jQuery('#updraft-navtab-settings-content #updraft_include_'+field+'_exclude').slideUp();
+			}
+		}
+	}
+	
+	jQuery('#updraft-navtab-settings-content .updraft_include_entity').click(function() {
+		var has_exclude_field = jQuery(this).data('toggle_exclude_field');
+		if (has_exclude_field) {
+			setup_file_entity_exclude_field(has_exclude_field, false);
 		}
 	});
 	
-	jQuery('#updraft_include_uploads').click(function() {
-		if (jQuery('#updraft_include_uploads').is(':checked')) {
-			jQuery('#updraft_include_uploads_exclude').slideDown();
-		} else {
-			jQuery('#updraft_include_uploads_exclude').slideUp();
-		}
-	});
-	
-	jQuery('#updraft-service').change(function() {
-		jQuery('.updraftplusmethod').hide();
+	// TODO: This is suspected to be obsolete. Confirm + remove.
+	jQuery('#updraft-navtab-settings-content .updraft-service').change(function() {
 		var active_class = jQuery(this).val();
-		jQuery('.'+active_class).show();
+		jQuery('#updraft-navtab-settings-content .updraftplusmethod').hide();
+		jQuery('#updraft-navtab-settings-content .'+active_class).show();
 	});
 
+	jQuery('#updraft-navtab-settings-content a.updraft_show_decryption_widget').click(function(e) {
+		e.preventDefault();
+		jQuery('#updraftplus_db_decrypt').val(jQuery('#updraft_encryptionphrase').val());
+		jQuery('#updraft-manualdecrypt-modal').slideToggle();
+	});
+	
 	jQuery('#updraftplus-phpinfo').click(function(e) {
 		e.preventDefault();
 		updraft_iframe_modal('phpinfo', updraftlion.phpinfo);
@@ -1810,19 +1964,144 @@ jQuery(document).ready(function($){
 			updraft_html_modal(data, updraftlion.raw, 780, 500);
 		}
 	});
-	
 
-	jQuery('.icon-dropdown').selectric({
-		optionsItemBuilder: function(itemData, element, index){
-			return element.val().length ? '<span class="ico ico-'+element.val()+'"></span>'+itemData.text : itemData.text;
-		},
-		inheritOriginalWidth: false
+});
+
+// UpdraftPlus Vault
+jQuery(document).ready(function($){
+	
+	var settings_css_prefix = '#updraft-navtab-settings-content ';
+	
+	$(settings_css_prefix+'#updraftvault_settings_cell').on('click', '.updraftvault_backtostart', function(e) {
+		e.preventDefault();
+		$(settings_css_prefix+'#updraftvault_settings_showoptions').slideUp();
+		$(settings_css_prefix+'#updraftvault_settings_connect').slideUp();
+		$(settings_css_prefix+'#updraftvault_settings_connected').slideUp();
+		$(settings_css_prefix+'#updraftvault_settings_default').slideDown();
 	});
 	
+	// Prevent default event when pressing return in the form
+	$(settings_css_prefix+'#updraftvault_settings_connect input').keypress(function(e) {
+		if (e.which == 13) {
+			$(settings_css_prefix+'#updraftvault_connect_go').click();
+			return false;
+		}
+	});
+	
+	$(settings_css_prefix+'#updraftvault_settings_cell').on('click', '#updraftvault_recountquota', function(e) {
+		e.preventDefault();
+		$(settings_css_prefix+'#updraftvault_recountquota').html(updraftlion.counting);
+		try {
+			$.post(ajaxurl,  {
+				action: 'updraft_ajax',
+			   subaction: 'vault_recountquota',
+			   nonce: updraft_credentialtest_nonce
+			}, function(response) {
+				$(settings_css_prefix+'#updraftvault_recountquota').html(updraftlion.updatequotacount);
+				try {
+					resp = $.parseJSON(response);
+					if (resp.hasOwnProperty('html')) {
+						$(settings_css_prefix+'#updraftvault_settings_connected').html(resp.html);
+						if (resp.hasOwnProperty('connected')) {
+							if (resp.connected) {
+								$(settings_css_prefix+'#updraftvault_settings_default').hide();
+								$(settings_css_prefix+'#updraftvault_settings_connected').show();
+							} else {
+								$(settings_css_prefix+'#updraftvault_settings_connected').hide();
+								$(settings_css_prefix+'#updraftvault_settings_default').show();
+							}
+						}
+					}
+				} catch (err) {
+					alert(updraftlion.unexpectedresponse+' '+response);
+					console.log(err);
+				} 
+			});
+		} catch (err) {
+			$(settings_css_prefix+'#updraftvault_recountquota').html(updraftlion.updatequotacount);
+			console.log(err);
+		}
+	});
+	
+	$(settings_css_prefix+'#updraftvault_settings_cell').on('click', '#updraftvault_disconnect', function(e) {
+		e.preventDefault();
+		$(settings_css_prefix+'#updraftvault_disconnect').html(updraftlion.disconnecting);
+		try {
+			$.post(ajaxurl,  {
+				action: 'updraft_ajax',
+			   subaction: 'vault_disconnect',
+			   nonce: updraft_credentialtest_nonce
+			}, function(response) {
+				$(settings_css_prefix+'#updraftvault_disconnect').html(updraftlion.disconnect);
+				try {
+					resp = $.parseJSON(response);
+					if (resp.hasOwnProperty('html')) {
+						$(settings_css_prefix+'#updraftvault_settings_connected').html(resp.html).slideUp();
+						$(settings_css_prefix+'#updraftvault_settings_default').slideDown();
+					}
+				} catch (err) {
+					alert(updraftlion.unexpectedresponse+' '+response);
+					console.log(response);
+					console.log(err);
+				} 
+			});
+		} catch (err) {
+			$(settings_css_prefix+'#updraftvault_disconnect').html(updraftlion.disconnect);
+			console.log(err);
+		}
+	});
+	
+	$(settings_css_prefix+'#updraftvault_connect').click(function(e) {
+		e.preventDefault();
+		$(settings_css_prefix+'#updraftvault_settings_default').slideUp();
+		$(settings_css_prefix+'#updraftvault_settings_connect').slideDown();
+	});
+	
+	$(settings_css_prefix+'#updraftvault_showoptions').click(function(e) {
+		e.preventDefault();
+		$(settings_css_prefix+'#updraftvault_settings_default').slideUp();
+		$(settings_css_prefix+'#updraftvault_settings_showoptions').slideDown();
+	});
+	
+	$(settings_css_prefix+'#updraftvault_connect_go').click(function(e) {
+		$(settings_css_prefix+'#updraftvault_connect_go').html(updraftlion.connecting);
+		$.post(ajaxurl,  {
+			action: 'updraft_ajax',
+			subaction: 'vault_connect',
+			nonce: updraft_credentialtest_nonce,
+			email: $('#updraftvault_email').val(),
+					pass: $('#updraftvault_pass').val(),
+		}, function(response) {
+			$(settings_css_prefix+'#updraftvault_connect_go').html(updraftlion.connect);
+			try {
+				resp = $.parseJSON(response);
+			} catch(err) {
+				console.log(err);
+				console.log(response);
+				alert(updraftlion.unexpectedresponse+' '+response);
+				return;
+			}
+			if (resp.hasOwnProperty('e')) {
+				updraft_html_modal('<h4 style="margin-top:0px; padding-top:0px;">'+updraftlion.errornocolon+'</h4><p>'+resp.e+'</p>', updraftlion.disconnect, 400, 250);
+				if (resp.hasOwnProperty('code') && resp.code == 'no_quota') {
+					$(settings_css_prefix+'#updraftvault_settings_connect').slideUp();
+					$(settings_css_prefix+'#updraftvault_settings_default').slideDown();
+				}
+			} else if (resp.hasOwnProperty('connected') && resp.connected && resp.hasOwnProperty('html')) {
+				$(settings_css_prefix+'#updraftvault_settings_connect').slideUp();
+				$(settings_css_prefix+'#updraftvault_settings_connected').html(resp.html).slideDown();
+			} else {
+				console.log(response);
+				console.log(resp);
+				alert(updraftlion.unexpectedresponse+' '+response);
+			}
+			
+		});
+		return false;
+	});
 });
 
 // Next: the encrypted database pluploader
-
 jQuery(document).ready(function($){
 	
 	try {
@@ -1908,6 +2187,8 @@ jQuery(document).ready(function($){
 	}
 
 	jQuery('#updraft-hidethis').remove();
+	
+	updraft_remote_storage_tabs_setup();
 
 });
 
@@ -1917,6 +2198,14 @@ jQuery(document).ready(function($){
 	// Pre-load the image so that it doesn't jerk when first used
 	var my_image = new Image();
 	my_image.src = updraftlion.ud_url+'/images/udlogo-rotating.gif';
+	
+	// When inclusion options for file entities in the settings tab, reflect that in the "Backup Now" dialog, to prevent unexpected surprises
+	$('#updraft-navtab-settings-content input.updraft_include_entity').change(function(e) {
+		var event_target = $(this).attr('id');
+		var checked = $(this).is(':checked');
+		var backup_target = '#backupnow_files_'+event_target;
+		$(backup_target).prop('checked', checked);
+	});
 	
 	$('#updraftplus-settings-save').click(function(e) {
 		e.preventDefault();
