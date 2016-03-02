@@ -64,6 +64,9 @@
 					$error_messages = array(); // empty array to store error messages
 					if( isset( $response_body['error-codes'] ) ) {	
 						foreach( $response_body['error-codes'] as $error_code ) {
+							if( $error_code == 'missing-input-response' ) {
+								$error_code = __( 'Please check the reCAPTCHA field.', 'yikes-inc-easy-mailchimp-extender' );
+							}
 							$error_messages[] = __( 'Error', 'yikes-inc-easy-mailchimp-extender' ) . ': ' . $error_code;
 						}
 					} else {
@@ -73,7 +76,7 @@
 					wp_send_json( array( 
 						'hide' => '0', 
 						'error' => $error ,
-						'response' => __( "It looks like we've run into a reCaptcha error." , 'yikes-inc-easy-mailchimp-extender' ) .' '. implode( ' ', $error_messages ),
+						'response' => apply_filters( 'yikes-mailchimp-recaptcha-required-error', implode( ' ', $error_messages ) ),
 					) );
 					exit();
 				}	
@@ -139,8 +142,7 @@
 					'email' => array( 'email' => sanitize_email( $data['EMAIL'] ) ),
 					'merge_vars' => $merge_variables,
 					'double_optin' => $optin_settings['optin'],
-					// 'update_existing' => $optin_settings['update_existing_user'],
-					'update_existing' => 0,
+					'update_existing' => $optin_settings['update_existing_user'],
 					'send_welcome' => $optin_settings['send_welcome_email'],
 					'replace_interests' => ( isset( $submission_settings['replace_interests'] ) ) ? $submission_settings['replace_interests'] : 1, // defaults to replace
 				), $form, $list_id, $data['EMAIL'] ) );
