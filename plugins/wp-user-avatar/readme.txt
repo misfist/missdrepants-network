@@ -405,6 +405,9 @@ This would output:
 
 == Changelog ==
 
+= 2.0.6 =
+* Improvement Fix: Broken Jquery files from UI is resolved.
+
 = 2.0.5 =
 * Improvement Fix: Broken JS files from UI is resolved.
 
